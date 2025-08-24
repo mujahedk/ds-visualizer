@@ -4,7 +4,7 @@ interface AVLViewProps {
   // TODO: Define props for AVL tree visualization
 }
 
-const AVLView: React.FC<AVLViewProps> = (props) => {
+const AVLView: React.FC<AVLViewProps> = () => {
   return (
     <div className="avl-view">
       <h2>AVL Tree Visualization</h2>

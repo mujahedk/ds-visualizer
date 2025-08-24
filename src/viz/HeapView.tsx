@@ -4,7 +4,7 @@ interface HeapViewProps {
   // TODO: Define props for heap visualization
 }
 
-const HeapView: React.FC<HeapViewProps> = (props) => {
+const HeapView: React.FC<HeapViewProps> = () => {
   return (
     <div className="heap-view">
       <h2>Heap Visualization</h2>

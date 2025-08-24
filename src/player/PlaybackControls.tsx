@@ -4,7 +4,7 @@ interface PlaybackControlsProps {
   // TODO: Define props for playback controls
 }
 
-const PlaybackControls: React.FC<PlaybackControlsProps> = (props) => {
+const PlaybackControls: React.FC<PlaybackControlsProps> = () => {
   return (
     <div className="playback-controls">
       <h3>Playback Controls</h3>

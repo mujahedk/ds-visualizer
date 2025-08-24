@@ -4,7 +4,7 @@ interface GraphViewProps {
   // TODO: Define props for graph visualization
 }
 
-const GraphView: React.FC<GraphViewProps> = (props) => {
+const GraphView: React.FC<GraphViewProps> = () => {
   return (
     <div className="graph-view">
       <h2>Graph Visualization</h2>
