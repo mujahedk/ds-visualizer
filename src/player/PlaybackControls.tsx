@@ -1,0 +1,16 @@
+import React from 'react'
+
+interface PlaybackControlsProps {
+  // TODO: Define props for playback controls
+}
+
+const PlaybackControls: React.FC<PlaybackControlsProps> = (props) => {
+  return (
+    <div className="playback-controls">
+      <h3>Playback Controls</h3>
+      {/* TODO: Implement play, pause, step, reset controls */}
+    </div>
+  )
+}
+
+export default PlaybackControls
