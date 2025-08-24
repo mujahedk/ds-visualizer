@@ -2,6 +2,7 @@ import React from 'react'
 
 interface PlaybackControlsProps {
   // TODO: Define props for playback controls
+  isPlaying?: boolean; // Placeholder prop
 }
 
 const PlaybackControls: React.FC<PlaybackControlsProps> = () => {

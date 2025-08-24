@@ -2,6 +2,7 @@ import React from 'react'
 
 interface GraphViewProps {
   // TODO: Define props for graph visualization
+  nodes?: Array<{id: string, label: string}>; // Placeholder prop
 }
 
 const GraphView: React.FC<GraphViewProps> = () => {

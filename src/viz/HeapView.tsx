@@ -2,6 +2,7 @@ import React from 'react'
 
 interface HeapViewProps {
   // TODO: Define props for heap visualization
+  data?: number[]; // Placeholder prop
 }
 
 const HeapView: React.FC<HeapViewProps> = () => {

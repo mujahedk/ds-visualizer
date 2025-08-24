@@ -2,6 +2,7 @@ import React from 'react'
 
 interface AVLViewProps {
   // TODO: Define props for AVL tree visualization
+  data?: number[]; // Placeholder prop
 }
 
 const AVLView: React.FC<AVLViewProps> = () => {
