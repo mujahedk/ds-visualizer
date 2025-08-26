@@ -531,7 +531,7 @@ const createAlgorithmDescriptor = (key: AlgorithmKey): AlgorithmDescriptor => {
       complexities: {
         "Insert": "O(log n)",
         "Pop": "O(log n)",
-        "Peek": "O(1)"
+        "Peak": "O(1)"
       },
       createMockFrames: () => createMockFrames(key),
       createFramesFromInput: (input: string) => {

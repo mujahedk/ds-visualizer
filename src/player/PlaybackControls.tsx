@@ -21,6 +21,32 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   
   // Sound toggle state
   const [soundEnabled, setSoundEnabled] = useState(soundManager.isSoundEnabled())
+  const [audioReady, setAudioReady] = useState(soundManager.isAudioReady())
+
+  // Monitor audio readiness
+  useEffect(() => {
+    const checkAudioReady = () => {
+      setAudioReady(soundManager.isAudioReady())
+    }
+
+    // Check immediately
+    checkAudioReady()
+
+    // Check after user interactions
+    const handleUserInteraction = () => {
+      setTimeout(checkAudioReady, 100)
+    }
+
+    document.addEventListener('click', handleUserInteraction, { once: true })
+    document.addEventListener('keydown', handleUserInteraction, { once: true })
+    document.addEventListener('touchstart', handleUserInteraction, { once: true })
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction)
+      document.removeEventListener('keydown', handleUserInteraction)
+      document.removeEventListener('touchstart', handleUserInteraction)
+    }
+  }, [])
 
   const totalFrames = frames.length
   const currentFrame = frames[index] || null
@@ -218,13 +244,26 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             onClick={toggleSound}
             className={`p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ${
               soundEnabled 
-                ? 'bg-green-600 hover:bg-green-700 text-white' 
+                ? audioReady 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-yellow-600 hover:bg-yellow-700 text-white'
                 : 'bg-gray-600 hover:bg-gray-700 text-gray-300'
             }`}
             aria-label={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
-            title={soundEnabled ? 'Sound: ON' : 'Sound: OFF'}
+            title={
+              soundEnabled 
+                ? audioReady 
+                  ? 'Sound: ON (Ready)' 
+                  : 'Sound: ON (Click to enable)'
+                : 'Sound: OFF'
+            }
           >
-            {soundEnabled ? '🔊' : '🔇'}
+            {soundEnabled 
+              ? audioReady 
+                ? '🔊' 
+                : '🟡'
+              : '🔇'
+            }
           </button>
           
           {/* Speed Control */}
