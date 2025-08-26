@@ -13,6 +13,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/playground" element={<Playground />} />
+            {/* Catch-all route for client-side routing */}
+            <Route path="*" element={<Home />} />
           </Routes>
         </main>
       </div>

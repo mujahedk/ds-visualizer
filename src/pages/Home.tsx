@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Container from '../components/layout/Container'
 
 const Home: React.FC = () => {
@@ -69,8 +69,15 @@ const Home: React.FC = () => {
     }
   ]
 
+  const navigate = useNavigate()
+  
   const scrollToFeatures = () => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const handleAlgorithmClick = (href: string) => {
+    console.log('Home: Navigating to:', href)
+    navigate(href)
   }
 
   return (
@@ -126,10 +133,10 @@ const Home: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault()
-                    window.location.href = algo.href
+                    handleAlgorithmClick(algo.href)
                   }
                 }}
-                onClick={() => window.location.href = algo.href}
+                onClick={() => handleAlgorithmClick(algo.href)}
                 aria-label={`Learn about ${algo.name}: ${algo.description}`}
               >
                 <div className="text-4xl mb-4" role="img" aria-label={`${algo.name} icon`}>

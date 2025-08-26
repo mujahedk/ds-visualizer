@@ -16,6 +16,9 @@ const Playground: React.FC = () => {
   const [algorithmKey, setAlgorithmKey] = useState<AlgorithmKey>(() => {
     // Get algorithm from URL parameter, default to 'heap'
     const algoParam = searchParams.get('algo') as AlgorithmKey
+    console.log('Playground: URL algo param:', algoParam)
+    console.log('Playground: Available algorithms:', Object.keys(algorithmPresets))
+    console.log('Playground: Algorithm found:', getAlgorithm(algoParam))
     return algoParam && getAlgorithm(algoParam) ? algoParam : 'heap'
   })
   const [commandInput, setCommandInput] = useState('')
