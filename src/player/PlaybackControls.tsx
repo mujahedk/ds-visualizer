@@ -1,5 +1,6 @@
-import React, { useEffect, useCallback } from 'react'
+import React, { useEffect, useCallback, useState } from 'react'
 import { PlayerState, PlayerActions } from './playerStore'
+import { soundManager } from '../utils/sound'
 
 export interface PlaybackControlsProps {
   /** Player state (frames, index, playing, speed) */
@@ -17,6 +18,9 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
 }) => {
   const { frames, index, playing, speed } = player
   const { play, pause, stepNext, stepPrev, setSpeed, reset, setIndex } = actions
+  
+  // Sound toggle state
+  const [soundEnabled, setSoundEnabled] = useState(soundManager.isSoundEnabled())
 
   const totalFrames = frames.length
   const currentFrame = frames[index] || null
@@ -93,6 +97,13 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
     }
   }, [setIndex, totalFrames])
 
+  // Handle sound toggle
+  const toggleSound = useCallback(() => {
+    const newState = !soundEnabled
+    setSoundEnabled(newState)
+    soundManager.setEnabled(newState)
+  }, [soundEnabled])
+
   const getShortcutText = (action: string) => {
     const shortcuts: Record<string, string> = {
       play: 'Space',
@@ -104,7 +115,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   }
 
   return (
-    <div className={`bg-gray-800 border-t border-gray-700 p-4 ${className}`}>
+    <div className={`bg-gray-800 border-t border-gray-700 p-2 ${className}`}>
       <div className="flex items-center justify-between">
         {/* Left: Playback Controls */}
         <div className="flex items-center space-x-3">
@@ -135,7 +146,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             title={`Previous frame (${getShortcutText('prev')})`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </button>
 
@@ -148,7 +159,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             title={`Next frame (${getShortcutText('next')})`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
             </svg>
           </button>
 
@@ -166,7 +177,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
         </div>
 
         {/* Center: Frame Navigation */}
-        <div className="flex-1 mx-6">
+        <div className="flex-1 mx-4">
           <div className="flex items-center space-x-3">
             {/* Frame Counter */}
             <span className="text-gray-300 text-sm min-w-[80px] text-center">
@@ -200,8 +211,23 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
           </div>
         </div>
 
-        {/* Right: Speed Control */}
+        {/* Right: Speed Control & Sound Toggle */}
         <div className="flex items-center space-x-3">
+          {/* Sound Toggle */}
+          <button
+            onClick={toggleSound}
+            className={`p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ${
+              soundEnabled 
+                ? 'bg-green-600 hover:bg-green-700 text-white' 
+                : 'bg-gray-600 hover:bg-gray-700 text-gray-300'
+            }`}
+            aria-label={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
+            title={soundEnabled ? 'Sound: ON' : 'Sound: OFF'}
+          >
+            {soundEnabled ? '🔊' : '🔇'}
+          </button>
+          
+          {/* Speed Control */}
           <label htmlFor="speed-select" className="text-gray-300 text-sm">
             Speed:
           </label>

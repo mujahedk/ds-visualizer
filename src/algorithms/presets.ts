@@ -18,7 +18,7 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
     title: "Binary Heap",
     description: "A complete binary tree where each parent node is greater than or equal to its children (max heap) or less than or equal to its children (min heap).",
     sampleInputs: ["insert 15", "insert 20", "insert 10", "extract", "heapify"],
-    complexities: { "Insert": "O(log n)", "Extract": "O(log n)", "Peek": "O(1)", "Build": "O(n)" },
+    complexities: { "Insert": "O(log n)", "Extract": "O(log n)", "Peak": "O(1)", "Build": "O(n)" },
     presets: [
       {
         description: "Balanced-ish insert",

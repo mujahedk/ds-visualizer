@@ -44,12 +44,12 @@ const HeapView: React.FC<HeapViewProps> = ({ frame, currentFrameIndex = 0, total
   const levels = Math.floor(Math.log2(totalNodes)) + 1
   const maxNodesAtLevel = Math.pow(2, levels - 1)
   
-  // SVG dimensions
-  const svgWidth = 800
-  const svgHeight = 600
-  const nodeRadius = 25
-  const levelSpacing = 120
-  const nodeSpacing = Math.min(svgWidth / (maxNodesAtLevel + 1), 100)
+  // SVG dimensions - more compact for better screen fit
+  const svgWidth = 600
+  const svgHeight = 450
+  const nodeRadius = 20
+  const levelSpacing = 90
+  const nodeSpacing = Math.min(svgWidth / (maxNodesAtLevel + 1), 80)
 
   // Calculate node positions
   const getNodePosition = (index: number): { x: number; y: number } => {
@@ -216,7 +216,7 @@ const HeapView: React.FC<HeapViewProps> = ({ frame, currentFrameIndex = 0, total
   return (
     <div className="w-full h-full flex flex-col">
       {/* Frame info header */}
-      <div className="mb-4 p-3 bg-gray-800 rounded-lg">
+      <div className="mb-2 p-2 bg-gray-800 rounded-lg">
         <div className="flex justify-between items-center">
           <div>
             <span className="text-gray-400">Step:</span>
@@ -234,7 +234,7 @@ const HeapView: React.FC<HeapViewProps> = ({ frame, currentFrameIndex = 0, total
       </div>
 
       {/* SVG Visualization */}
-      <div className="flex-1 bg-gray-900 rounded-lg p-4 overflow-auto">
+      <div className="flex-1 bg-gray-900 rounded-lg overflow-auto">
         <svg
           width={svgWidth}
           height={svgHeight}
@@ -262,7 +262,7 @@ const HeapView: React.FC<HeapViewProps> = ({ frame, currentFrameIndex = 0, total
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex items-center justify-center space-x-6 text-sm text-gray-400">
+      <div className="mt-1 flex items-center justify-center space-x-3 text-xs text-gray-400">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 rounded-full bg-gray-600 border-2 border-gray-500"></div>
           <span>Normal Node</span>

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Frame } from '../algorithms'
+import { soundManager } from '../utils/sound'
 
 /**
  * Player store state interface
@@ -57,7 +58,9 @@ export const usePlayerStore = (): PlayerState & PlayerActions => {
           setPlaying(false) // Stop at last frame
           return prev
         }
-        return prev + 1
+        const newIndex = prev + 1
+        soundManager.playDing()
+        return newIndex
       })
     }, 1000 / speed) // Convert speed multiplier to milliseconds
 
@@ -72,7 +75,13 @@ export const usePlayerStore = (): PlayerState & PlayerActions => {
   }, [])
 
   const setIndex = useCallback((newIndex: number) => {
-    setIndexState(Math.max(0, Math.min(newIndex, frames.length - 1)))
+    setIndexState(prev => {
+      const clampedIndex = Math.max(0, Math.min(newIndex, frames.length - 1))
+      if (clampedIndex !== prev) {
+        soundManager.playDing()
+      }
+      return clampedIndex
+    })
   }, [frames.length])
 
   const play = useCallback(() => {
@@ -86,11 +95,23 @@ export const usePlayerStore = (): PlayerState & PlayerActions => {
   }, [])
 
   const stepNext = useCallback(() => {
-    setIndexState(prev => Math.min(prev + 1, frames.length - 1))
+    setIndexState(prev => {
+      const newIndex = Math.min(prev + 1, frames.length - 1)
+      if (newIndex !== prev) {
+        soundManager.playDing()
+      }
+      return newIndex
+    })
   }, [frames.length])
 
   const stepPrev = useCallback(() => {
-    setIndexState(prev => Math.max(prev - 1, 0))
+    setIndexState(prev => {
+      const newIndex = Math.max(prev - 1, 0)
+      if (newIndex !== prev) {
+        soundManager.playDing()
+      }
+      return newIndex
+    })
   }, [])
 
   const setSpeed = useCallback((newSpeed: number) => {
