@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react'
 import Container from '../components/layout/Container'
 import PlaybackControls from '../player/PlaybackControls'
 import { usePlayerStore, getCurrentFrame } from '../player/playerStore'
+import Canvas from '../viz/Canvas'
 import Toast from '../components/Toast'
 import { getAlgorithms, getAlgorithm, AlgorithmKey } from '../algorithms'
 
@@ -202,26 +203,10 @@ const Playground: React.FC = () => {
         <div className="flex-1 flex flex-col">
           {/* Canvas Area */}
           <div className="flex-1 bg-gray-900 p-6">
-            <div
-              className="w-full h-full bg-gray-800 border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center"
-              aria-label="Visualization Canvas"
-            >
-              <div className="text-center text-gray-400">
-                <div className="text-6xl mb-4">🎯</div>
-                <h3 className="text-xl font-medium mb-2">Visualization Canvas</h3>
-                <p className="text-sm">
-                  {currentFrame ? (
-                    <>
-                      <span className="text-red-400 font-medium">{currentFrame.meta.label}</span>
-                      <br />
-                      Step {currentFrame.meta.step} of {frames.length}
-                    </>
-                  ) : (
-                    'Select an algorithm to begin'
-                  )}
-                </p>
-              </div>
-            </div>
+            <Canvas
+              algorithmKey={algorithmKey}
+              frame={currentFrame}
+            />
           </div>
 
           {/* Playback Controls */}

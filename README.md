@@ -31,7 +31,18 @@ src/
 │   ├── playerStore.ts    # Player state management
 │   ├── PlaybackControls.tsx # Reusable playback UI
 │   └── index.ts          # Player module exports
-├── viz/          # Visualization components (placeholder)
+├── viz/          # Visualization components
+│   ├── Canvas.tsx        # Universal canvas component
+│   ├── HeapView.tsx      # Heap visualization (placeholder)
+│   ├── BSTView.tsx       # BST visualization (placeholder)
+│   ├── AVLView.tsx       # AVL visualization (placeholder)
+│   ├── LinkedListView.tsx # Linked list visualization (placeholder)
+│   ├── ArrayView.tsx     # Array visualization (placeholder)
+│   ├── StackView.tsx     # Stack visualization (placeholder)
+│   ├── QueueView.tsx     # Queue visualization (placeholder)
+│   ├── HashView.tsx      # Hash table visualization (placeholder)
+│   ├── GraphView.tsx     # Graph visualization (placeholder)
+│   └── index.ts          # Visualization module exports
 ├── styles/       # Global styles and Tailwind config
 └── main.tsx      # Application entry point
 ```
@@ -56,6 +67,28 @@ The project includes a headless, reusable player system that can be used by any 
 - **Clean API**: Pass player state and actions to PlaybackControls
 - **Reusable**: Can be used in multiple views simultaneously
 - **Type-safe**: Full TypeScript support with proper interfaces
+
+## 🎨 Universal Visualization System
+
+The project includes a flexible visualization layer that can render any algorithm frame:
+
+### **Canvas Component (`Canvas`)**
+- **Universal**: Renders any algorithm frame with appropriate view
+- **Algorithm-aware**: Automatically selects the right visualization component
+- **Fallback support**: Generic JSON preview when specific views aren't ready
+- **Empty state**: Shows helpful message when no frame is loaded
+
+### **Algorithm-Specific Views**
+- **Placeholder views**: Ready for each of the 9 data structures
+- **Consistent interface**: All views accept the same `frame` prop
+- **Easy extension**: Simple to implement real visualizations later
+- **Type-safe**: Full TypeScript support with proper interfaces
+
+### **Features**
+- **Dynamic view selection**: Based on algorithm key
+- **JSON state preview**: Shows frame data in readable format
+- **Responsive design**: Works in any container size
+- **Custom renderers**: Support for custom visualization logic
 
 ## 🚀 Getting Started
 
@@ -97,6 +130,8 @@ npm run test:ui
 - Universal algorithm registry system
 - Universal player store and controls
 - Interactive playground with mock frames
+- Universal visualization canvas system
+- Algorithm-specific view placeholders
 
 🚧 **In Progress:**
 - Algorithm implementations
