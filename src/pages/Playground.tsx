@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import Container from '../components/layout/Container'
 import PlaybackControls from '../player/PlaybackControls'
 import { usePlayerStore, getCurrentFrame } from '../player/playerStore'
@@ -7,21 +7,19 @@ import Toast from '../components/Toast'
 import { getAlgorithms, getAlgorithm, AlgorithmKey, algorithmPresets } from '../algorithms'
 
 const Playground: React.FC = () => {
-  // Player store
   const player = usePlayerStore()
   const { frames, index } = player
   const { setFrames } = player
 
-  // Local state
   const [algorithmKey, setAlgorithmKey] = useState<AlgorithmKey>('heap')
   const [commandInput, setCommandInput] = useState('')
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'warning' | 'error' } | null>(null)
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
 
   const algorithms = getAlgorithms()
   const currentAlgorithm = getAlgorithm(algorithmKey)
   const currentFrame = getCurrentFrame(frames, index)
 
-  // Load frames when algorithm changes
   React.useEffect(() => {
     if (currentAlgorithm) {
       const newFrames = currentAlgorithm.createMockFrames()
@@ -29,34 +27,72 @@ const Playground: React.FC = () => {
     }
   }, [algorithmKey, currentAlgorithm, setFrames])
 
-  // Event handlers
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in input fields
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) {
+        return
+      }
+
+      switch (event.key) {
+        case ' ':
+          event.preventDefault()
+          if (player.playing) {
+            player.pause()
+          } else {
+            player.play()
+          }
+          break
+        case 'ArrowLeft':
+          event.preventDefault()
+          player.stepPrev()
+          break
+        case 'ArrowRight':
+          event.preventDefault()
+          player.stepNext()
+          break
+        case 'r':
+        case 'R':
+          event.preventDefault()
+          player.reset()
+          break
+        case '?':
+          event.preventDefault()
+          setShowKeyboardShortcuts(prev => !prev)
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [player])
+
   const handleAlgorithmChange = useCallback((newKey: AlgorithmKey) => {
     setAlgorithmKey(newKey)
   }, [])
 
   const handleRunPreset = useCallback((presetIndex: number) => {
     if (!currentAlgorithm) return
-    
     const presets = currentAlgorithm.createMockFrames()
     if (presets[presetIndex]) {
       setFrames(presets)
-      setToast({ message: `Loaded preset ${presetIndex + 1}`, type: 'success' })
+      setToast({ message: `Loaded preset: ${algorithmPresets[algorithmKey].presets[presetIndex]}`, type: 'success' })
     }
-  }, [currentAlgorithm, setFrames])
+  }, [currentAlgorithm, setFrames, algorithmKey])
 
   const handleApply = useCallback(() => {
     if (!currentAlgorithm || !commandInput.trim()) return
-    
     const command = currentAlgorithm.parseCommand(commandInput.trim())
     if (command) {
-      setToast({ 
-        message: `Commands parsed (mock): ${command.type}${command.payload ? ` ${command.payload}` : ''}`, 
-        type: 'info' 
+      setToast({
+        message: `Commands parsed (mock): ${command.type}${command.payload ? ` ${command.payload}` : ''}`,
+        type: 'info'
       })
     } else {
-      setToast({ 
-        message: 'Invalid command format. Try: insert 5, delete 3, search 10', 
-        type: 'warning' 
+      setToast({
+        message: 'Invalid command format. Try: insert 5, delete 3, search 10',
+        type: 'warning'
       })
     }
   }, [currentAlgorithm, commandInput])
@@ -69,16 +105,16 @@ const Playground: React.FC = () => {
     }
   }, [currentAlgorithm, setFrames])
 
-  // Helper text for command input
   const getCommandHelperText = () => {
-    if (!currentAlgorithm) return ''
-    
-    const presets = currentAlgorithm.createMockFrames()
-    if (presets.length > 0) {
-      const sampleCommands = ['insert 5', 'delete 3', 'search 10', 'clear', 'reset']
-      return `Try: ${sampleCommands.slice(0, 3).join(', ')}`
+    if (!currentAlgorithm) return 'Select an algorithm to see command examples'
+    return `Examples: ${algorithmPresets[algorithmKey].sampleInputs.slice(0, 3).join(', ')}`
+  }
+
+  const getCanvasAriaLabel = () => {
+    if (!currentFrame) {
+      return `Visualization canvas for ${currentAlgorithm?.title || 'algorithm'}. No frame loaded.`
     }
-    return 'Enter commands separated by semicolons'
+    return `Visualization canvas for ${currentAlgorithm?.title || 'algorithm'}. Frame ${currentFrame.meta.step}: ${currentFrame.meta.label}`
   }
 
   return (
@@ -87,7 +123,6 @@ const Playground: React.FC = () => {
       <div className="bg-gray-800 border-b border-gray-700 p-4">
         <Container>
           <div className="flex items-center justify-between">
-            {/* Algorithm Selector */}
             <div className="flex items-center space-x-4">
               <label htmlFor="algorithm-select" className="text-white font-medium">
                 Algorithm:
@@ -97,6 +132,7 @@ const Playground: React.FC = () => {
                 value={algorithmKey}
                 onChange={(e) => handleAlgorithmChange(e.target.value as AlgorithmKey)}
                 className="bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                aria-label="Select algorithm to visualize"
               >
                 {algorithms.map((algo) => (
                   <option key={algo.key} value={algo.key}>
@@ -105,22 +141,32 @@ const Playground: React.FC = () => {
                 ))}
               </select>
             </div>
-
-            {/* Complexity Badges */}
-            {currentAlgorithm && (
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-400 text-sm">Complexities:</span>
-                {Object.entries(currentAlgorithm.complexities).slice(0, 3).map(([operation, complexity]) => (
-                  <span
-                    key={operation}
-                    className="bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded"
-                    title={`${operation}: ${complexity}`}
-                  >
-                    {operation}: {complexity}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="flex items-center space-x-4">
+              {currentAlgorithm && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-400 text-sm">Complexities:</span>
+                  {Object.entries(currentAlgorithm.complexities).slice(0, 3).map(([operation, complexity]) => (
+                    <span 
+                      key={operation} 
+                      className="bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded" 
+                      title={`${operation}: ${complexity}`}
+                      role="text"
+                      aria-label={`${operation} complexity: ${complexity}`}
+                    >
+                      {operation}: {complexity}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={() => setShowKeyboardShortcuts(prev => !prev)}
+                className="bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                aria-label="Show keyboard shortcuts help"
+                title="Press ? for keyboard shortcuts"
+              >
+                ⌨️ Help
+              </button>
+            </div>
           </div>
         </Container>
       </div>
@@ -142,26 +188,31 @@ const Playground: React.FC = () => {
               onChange={(e) => setCommandInput(e.target.value)}
               placeholder="insert 5, 1, 9; pop 2"
               className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-red-500"
+              aria-label="Enter algorithm commands"
+              aria-describedby="command-help"
             />
-            <p className="text-gray-400 text-xs mt-2">{getCommandHelperText()}</p>
+            <p id="command-help" className="text-gray-400 text-xs mt-2">
+              {getCommandHelperText()}
+            </p>
           </div>
 
-          {/* Control Buttons */}
+          {/* Action Buttons */}
           <div className="space-y-3">
-            <button
-              onClick={handleApply}
+            <button 
+              onClick={handleApply} 
               className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+              aria-label="Apply the entered commands"
             >
               Apply
             </button>
-            
-            <button
-              onClick={handleResetAlgorithm}
+            <button 
+              onClick={handleResetAlgorithm} 
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+              aria-label="Reset algorithm to initial state"
             >
               Reset
             </button>
-
+            
             {/* Run Preset Dropdown */}
             <div className="relative">
               <label htmlFor="preset-select" className="block text-gray-300 text-sm font-medium mb-2">
@@ -172,6 +223,7 @@ const Playground: React.FC = () => {
                 onChange={(e) => handleRunPreset(parseInt(e.target.value))}
                 className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
                 defaultValue=""
+                aria-label="Select a preset to run"
               >
                 <option value="" disabled>Select a preset...</option>
                 {currentAlgorithm && algorithmPresets[currentAlgorithm.key].presets.map((preset: string, index: number) => (
@@ -202,13 +254,17 @@ const Playground: React.FC = () => {
         {/* Right Panel - Canvas */}
         <div className="flex-1 flex flex-col">
           {/* Canvas Area */}
-          <div className="flex-1 bg-gray-900 p-6">
+          <div 
+            className="flex-1 bg-gray-900 p-6"
+            role="img"
+            aria-label={getCanvasAriaLabel()}
+          >
             <Canvas
               algorithmKey={algorithmKey}
               frame={currentFrame}
             />
           </div>
-
+          
           {/* Playback Controls */}
           <PlaybackControls
             player={player}
@@ -216,6 +272,50 @@ const Playground: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Keyboard Shortcuts Help */}
+      {showKeyboardShortcuts && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-white">Keyboard Shortcuts</h3>
+              <button
+                onClick={() => setShowKeyboardShortcuts(false)}
+                className="text-gray-400 hover:text-white text-2xl"
+                aria-label="Close keyboard shortcuts help"
+              >
+                ×
+              </button>
+            </div>
+            <div className="space-y-3 text-gray-300">
+              <div className="flex justify-between">
+                <span>Space</span>
+                <span>Play/Pause</span>
+              </div>
+              <div className="flex justify-between">
+                <span>← →</span>
+                <span>Step Previous/Next</span>
+              </div>
+              <div className="flex justify-between">
+                <span>R</span>
+                <span>Reset</span>
+              </div>
+              <div className="flex justify-between">
+                <span>?</span>
+                <span>Show/Hide This Help</span>
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setShowKeyboardShortcuts(false)}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                Got it!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast Notifications */}
       <Toast
