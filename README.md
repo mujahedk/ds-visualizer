@@ -2,7 +2,7 @@
 
 **Interactive, step-by-step visualizations of classic data structures and algorithms**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Coming%20Soon-blue?style=for-the-badge)](https://ds-visualizer.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Coming%20Soon-blue?style=for-the-badge)](https://mj-ds-visualizer.vercel.app/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg?style=for-the-badge)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-blue.svg?style=for-the-badge)](https://reactjs.org/)
