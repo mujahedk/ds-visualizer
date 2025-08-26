@@ -6,7 +6,7 @@ An interactive, step-by-step visualization tool for classic data structures and 
 
 - **Modern UI**: Clean, dark-themed interface with responsive design
 - **Data Structure Coverage**: 9 core data structures planned (Heap, BST, AVL, Linked List, Array, Stack, Queue, Hash Table, Graph)
-- **Interactive Playground**: Coming soon - step-by-step algorithm visualization
+- **Interactive Playground**: Universal player system with step-by-step algorithm visualization
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## 🛠️ Tech Stack
@@ -23,13 +23,39 @@ An interactive, step-by-step visualization tool for classic data structures and 
 src/
 ├── app/           # Main App component and routing
 ├── components/    # Reusable UI components
-│   └── layout/   # Layout components (Header, Container)
+│   ├── layout/   # Layout components (Header, Container)
+│   └── Toast.tsx # Notification system
 ├── pages/        # Page components (Home, Playground)
-├── algorithms/   # Algorithm implementations (placeholder)
+├── algorithms/   # Algorithm implementations and registry
+├── player/       # Universal player system
+│   ├── playerStore.ts    # Player state management
+│   ├── PlaybackControls.tsx # Reusable playback UI
+│   └── index.ts          # Player module exports
 ├── viz/          # Visualization components (placeholder)
 ├── styles/       # Global styles and Tailwind config
 └── main.tsx      # Application entry point
 ```
+
+## 🎮 Universal Player System
+
+The project includes a headless, reusable player system that can be used by any visualization:
+
+### **Player Store (`usePlayerStore`)**
+- **State**: frames, index, playing, speed
+- **Actions**: setFrames, setIndex, play, pause, stepNext, stepPrev, setSpeed, reset
+- **Auto-advance**: Automatically steps through frames when playing
+- **Speed control**: Configurable playback speed (0.5× to 4×)
+
+### **Playback Controls**
+- **Universal UI**: Works with any player store instance
+- **Keyboard shortcuts**: Space (play/pause), ←/→ (step), R (reset)
+- **Progress indicator**: Visual frame progress bar
+- **Speed selector**: 0.5×, 1×, 2×, 4× options
+
+### **Integration**
+- **Clean API**: Pass player state and actions to PlaybackControls
+- **Reusable**: Can be used in multiple views simultaneously
+- **Type-safe**: Full TypeScript support with proper interfaces
 
 ## 🚀 Getting Started
 
@@ -68,9 +94,11 @@ npm run test:ui
 - Algorithm grid layout
 - Responsive design with Tailwind CSS
 - Dark theme implementation
+- Universal algorithm registry system
+- Universal player store and controls
+- Interactive playground with mock frames
 
 🚧 **In Progress:**
-- Interactive playground functionality
 - Algorithm implementations
 - Visualization components
 

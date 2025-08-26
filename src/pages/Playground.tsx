@@ -1,73 +1,34 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import Container from '../components/layout/Container'
 import PlaybackControls from '../player/PlaybackControls'
+import { usePlayerStore, getCurrentFrame } from '../player/playerStore'
 import Toast from '../components/Toast'
-import { getAlgorithms, getAlgorithm, AlgorithmKey, Frame } from '../algorithms'
+import { getAlgorithms, getAlgorithm, AlgorithmKey } from '../algorithms'
 
 const Playground: React.FC = () => {
-  // State
+  // Player store
+  const player = usePlayerStore()
+  const { frames, index } = player
+  const { setFrames } = player
+
+  // Local state
   const [algorithmKey, setAlgorithmKey] = useState<AlgorithmKey>('heap')
-  const [frames, setFrames] = useState<Frame[]>([])
-  const [currentFrameIndex, setCurrentFrameIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [speed, setSpeed] = useState(1)
   const [commandInput, setCommandInput] = useState('')
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'warning' | 'error' } | null>(null)
 
   const algorithms = getAlgorithms()
   const currentAlgorithm = getAlgorithm(algorithmKey)
-  const currentFrame = frames[currentFrameIndex] || null
+  const currentFrame = getCurrentFrame(frames, index)
 
   // Load frames when algorithm changes
-  useEffect(() => {
+  React.useEffect(() => {
     if (currentAlgorithm) {
       const newFrames = currentAlgorithm.createMockFrames()
       setFrames(newFrames)
-      setCurrentFrameIndex(0)
-      setIsPlaying(false)
     }
-  }, [algorithmKey, currentAlgorithm])
-
-  // Auto-play functionality
-  useEffect(() => {
-    if (!isPlaying || frames.length === 0) return
-
-    const interval = setInterval(() => {
-      setCurrentFrameIndex(prev => {
-        if (prev >= frames.length - 1) {
-          setIsPlaying(false)
-          return prev
-        }
-        return prev + 1
-      })
-    }, 1000 / speed)
-
-    return () => clearInterval(interval)
-  }, [isPlaying, frames.length, speed])
+  }, [algorithmKey, currentAlgorithm, setFrames])
 
   // Event handlers
-  const handlePlayPause = useCallback(() => {
-    if (frames.length === 0) return
-    setIsPlaying(prev => !prev)
-  }, [frames.length])
-
-  const handleStepPrev = useCallback(() => {
-    setCurrentFrameIndex(prev => Math.max(0, prev - 1))
-  }, [])
-
-  const handleStepNext = useCallback(() => {
-    setCurrentFrameIndex(prev => Math.min(frames.length - 1, prev + 1))
-  }, [frames.length])
-
-  const handleReset = useCallback(() => {
-    setCurrentFrameIndex(0)
-    setIsPlaying(false)
-  }, [])
-
-  const handleSpeedChange = useCallback((newSpeed: number) => {
-    setSpeed(newSpeed)
-  }, [])
-
   const handleAlgorithmChange = useCallback((newKey: AlgorithmKey) => {
     setAlgorithmKey(newKey)
   }, [])
@@ -78,11 +39,9 @@ const Playground: React.FC = () => {
     const presets = currentAlgorithm.createMockFrames()
     if (presets[presetIndex]) {
       setFrames(presets)
-      setCurrentFrameIndex(0)
-      setIsPlaying(false)
       setToast({ message: `Loaded preset ${presetIndex + 1}`, type: 'success' })
     }
-  }, [currentAlgorithm])
+  }, [currentAlgorithm, setFrames])
 
   const handleApply = useCallback(() => {
     if (!currentAlgorithm || !commandInput.trim()) return
@@ -105,11 +64,9 @@ const Playground: React.FC = () => {
     if (currentAlgorithm) {
       const newFrames = currentAlgorithm.createMockFrames()
       setFrames(newFrames)
-      setCurrentFrameIndex(0)
-      setIsPlaying(false)
       setToast({ message: 'Algorithm reset to initial state', type: 'success' })
     }
-  }, [currentAlgorithm])
+  }, [currentAlgorithm, setFrames])
 
   // Helper text for command input
   const getCommandHelperText = () => {
@@ -269,17 +226,8 @@ const Playground: React.FC = () => {
 
           {/* Playback Controls */}
           <PlaybackControls
-            isPlaying={isPlaying}
-            onPlayPause={handlePlayPause}
-            onStepPrev={handleStepPrev}
-            onStepNext={handleStepNext}
-            onReset={handleReset}
-            onSpeedChange={handleSpeedChange}
-            currentFrame={currentFrameIndex + 1}
-            totalFrames={frames.length}
-            speed={speed}
-            canStepPrev={currentFrameIndex > 0}
-            canStepNext={currentFrameIndex < frames.length - 1}
+            player={player}
+            actions={player}
           />
         </div>
       </div>
