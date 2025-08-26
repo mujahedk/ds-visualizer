@@ -1,12 +1,22 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Header from '../components/layout/Header'
+import Home from '../pages/Home'
+import Playground from '../pages/Playground'
 import './App.css'
 
 function App() {
   return (
-    <div className="App">
-      <h1>Data Structure Visualizer</h1>
-      <p> This is a data structure visualizer. </p>
-      <p> More features will be added soon. </p>
-    </div>
+    <Router>
+      <div className="App min-h-screen bg-gray-900 text-white">
+        <Header />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/playground" element={<Playground />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   )
 }
 
