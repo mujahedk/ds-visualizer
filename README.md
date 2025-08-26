@@ -118,6 +118,10 @@ npm test
 npm run test:ui
 ```
 
+## 📚 Documentation
+
+- **Frame Schemas**: See [`docs/frame-schemas.md`](docs/frame-schemas.md) for detailed specifications of the data contracts that algorithm engines must follow when emitting frames.
+
 ## 🎯 Current Status
 
 ✅ **Completed:**
