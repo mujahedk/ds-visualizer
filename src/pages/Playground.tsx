@@ -84,12 +84,47 @@ const Playground: React.FC = () => {
   const handleRunPreset = useCallback((presetIndex: number) => {
     if (!currentAlgorithm) return
 
-    const presets = currentAlgorithm.createMockFrames()
-    if (presets[presetIndex]) {
-      setFrames(presets)
-      setToast({ message: `Loaded preset: ${algorithmPresets[algorithmKey].presets[presetIndex]}`, type: 'success' })
+    // Get the preset object
+    const preset = algorithmPresets[algorithmKey].presets[presetIndex]
+    if (!preset) return
+
+    // Try to execute the preset commands using createFramesFromInput
+    if (currentAlgorithm.createFramesFromInput) {
+      try {
+        const frames = currentAlgorithm.createFramesFromInput(preset.commands)
+        if (frames.length > 0) {
+          setFrames(frames)
+          setIndex(0)
+          pause()
+          setToast({ 
+            message: `Loaded preset: ${preset.description} (${frames.length} frames generated)`, 
+            type: 'success' 
+          })
+        } else {
+          setToast({ 
+            message: 'No frames generated from preset. Check preset format.', 
+            type: 'warning' 
+          })
+        }
+      } catch (error) {
+        console.error('Error executing preset:', error)
+        setToast({ 
+          message: 'Error executing preset. Check preset format.', 
+          type: 'error' 
+        })
+      }
+    } else {
+      // Fallback to mock frames if createFramesFromInput is not available
+      const mockFrames = currentAlgorithm.createMockFrames()
+      setFrames(mockFrames)
+      setIndex(0)
+      pause()
+      setToast({ 
+        message: `Loaded mock preset: ${preset.description}`, 
+        type: 'info' 
+      })
     }
-  }, [currentAlgorithm, setFrames, algorithmKey])
+  }, [currentAlgorithm, setFrames, setIndex, pause, algorithmKey])
 
   const handleApply = useCallback(() => {
     if (!currentAlgorithm || !commandInput.trim()) {
@@ -245,9 +280,9 @@ const Playground: React.FC = () => {
               aria-label="Select a preset to run"
             >
               <option value="" disabled>Select a preset...</option>
-              {currentAlgorithm && algorithmPresets[algorithmKey].presets.map((preset: string, index: number) => (
+              {currentAlgorithm && algorithmPresets[algorithmKey].presets.map((preset, index: number) => (
                 <option key={index} value={index}>
-                  {preset}
+                  {preset.description}
                 </option>
               ))}
             </select>

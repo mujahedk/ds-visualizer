@@ -2,6 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom slider styling */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #ef4444;
+  cursor: pointer;
+  border: 2px solid #dc2626;
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #ef4444;
+  cursor: pointer;
+  border: 2px solid #dc2626;
+  transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+/* Animation keyframes */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply animations */
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.slide-in-from-top {
+  animation: slideInFromTop 0.3s ease-out;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -29,27 +93,5 @@
   
   .slide-in-from-top-2 {
     animation: slideInFromTop 0.2s ease-out;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes slideInFromTop {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }

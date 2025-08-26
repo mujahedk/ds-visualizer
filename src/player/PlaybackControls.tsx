@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { PlayerState, PlayerActions } from './playerStore'
 
 export interface PlaybackControlsProps {
@@ -12,18 +12,21 @@ export interface PlaybackControlsProps {
   className?: string
 }
 
-/**
- * Universal playback controls for algorithm visualization
- * Provides play/pause, step navigation, speed control, and progress indication
- */
 const PlaybackControls: React.FC<PlaybackControlsProps> = ({
-  player,
-  actions,
-  showShortcuts = true,
-  className = ''
+  player, actions, showShortcuts = true, className = ''
 }) => {
   const { frames, index, playing, speed } = player
-  const { play, pause, stepNext, stepPrev, setSpeed, reset } = actions
+  const { play, pause, stepNext, stepPrev, setSpeed, reset, setIndex } = actions
+
+  const totalFrames = frames.length
+  const currentFrame = frames[index] || null
+
+  // Auto-pause when reaching the last frame
+  useEffect(() => {
+    if (playing && index >= totalFrames - 1) {
+      pause()
+    }
+  }, [playing, index, totalFrames, pause])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -62,6 +65,34 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [playing, play, pause, stepNext, stepPrev, reset])
 
+  // Handle frame slider change
+  const handleFrameSliderChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const newIndex = parseInt(event.target.value) - 1
+    if (newIndex >= 0 && newIndex < totalFrames) {
+      setIndex(newIndex)
+    }
+  }, [setIndex, totalFrames])
+
+  // Handle frame input change
+  const handleFrameInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const newIndex = parseInt(event.target.value) - 1
+    if (!isNaN(newIndex) && newIndex >= 0 && newIndex < totalFrames) {
+      setIndex(newIndex)
+    }
+  }, [setIndex, totalFrames])
+
+  // Handle frame input blur (when user finishes typing)
+  const handleFrameInputBlur = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
+    const newIndex = parseInt(event.target.value) - 1
+    if (isNaN(newIndex) || newIndex < 0) {
+      event.target.value = '1'
+      setIndex(0)
+    } else if (newIndex >= totalFrames) {
+      event.target.value = totalFrames.toString()
+      setIndex(totalFrames - 1)
+    }
+  }, [setIndex, totalFrames])
+
   const getShortcutText = (action: string) => {
     const shortcuts: Record<string, string> = {
       play: 'Space',
@@ -71,9 +102,6 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
     }
     return shortcuts[action] || ''
   }
-
-  const totalFrames = frames.length
-  const progress = totalFrames > 0 ? ((index + 1) / totalFrames) * 100 : 0
 
   return (
     <div className={`bg-gray-800 border-t border-gray-700 p-4 ${className}`}>
@@ -98,7 +126,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             )}
           </button>
 
-          {/* Step Previous */}
+          {/* Step Previous Button */}
           <button
             onClick={stepPrev}
             disabled={index <= 0}
@@ -107,11 +135,11 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             title={`Previous frame (${getShortcutText('prev')})`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
             </svg>
           </button>
 
-          {/* Step Next */}
+          {/* Step Next Button */}
           <button
             onClick={stepNext}
             disabled={index >= totalFrames - 1}
@@ -120,7 +148,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             title={`Next frame (${getShortcutText('next')})`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
 
@@ -132,28 +160,43 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             title={`Reset (${getShortcutText('reset')})`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.881.664A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.008a.5.5 0 01.416.223l.008.016a.5.5 0 01-.008.761l-.016.008a.5.5 0 01-.761-.008l-.008-.016a.5.5 0 01.008-.761l.016-.008zM16 17a1 1 0 01-1-1v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 011.881-.664A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 01-1 1z" clipRule="evenodd" />
             </svg>
           </button>
         </div>
 
-        {/* Center: Progress Bar */}
+        {/* Center: Frame Navigation */}
         <div className="flex-1 mx-6">
           <div className="flex items-center space-x-3">
-            <span className="text-gray-300 text-sm min-w-[60px] text-center">
+            {/* Frame Counter */}
+            <span className="text-gray-300 text-sm min-w-[80px] text-center">
               Frame {index + 1} of {totalFrames}
             </span>
-            <div className="flex-1 bg-gray-700 rounded-full h-2">
-              <div
-                className="bg-red-500 h-2 rounded-full transition-all duration-200"
-                style={{ width: `${progress}%` }}
-                role="progressbar"
-                aria-valuenow={index + 1}
-                aria-valuemin={1}
-                aria-valuemax={totalFrames}
-                aria-label={`Frame ${index + 1} of ${totalFrames}`}
+            
+            {/* Frame Slider */}
+            <div className="flex-1">
+              <input
+                type="range"
+                min="1"
+                max={totalFrames}
+                value={index + 1}
+                onChange={handleFrameSliderChange}
+                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                aria-label={`Navigate to frame ${index + 1} of ${totalFrames}`}
               />
             </div>
+            
+            {/* Frame Input */}
+            <input
+              type="number"
+              min="1"
+              max={totalFrames}
+              value={index + 1}
+              onChange={handleFrameInputChange}
+              onBlur={handleFrameInputBlur}
+              className="w-16 bg-gray-700 border border-gray-600 text-white text-center rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+              aria-label="Enter frame number"
+            />
           </div>
         </div>
 
@@ -176,6 +219,18 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
           </select>
         </div>
       </div>
+
+      {/* Status Line - Current Frame Info */}
+      {currentFrame && (
+        <div className="mt-3 pt-3 border-t border-gray-700">
+          <div className="text-center">
+            <span className="text-gray-400 text-sm">Current:</span>
+            <span className="text-white font-medium ml-2">
+              {currentFrame.meta.label}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Keyboard Shortcuts Legend */}
       {showShortcuts && (
