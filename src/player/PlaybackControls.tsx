@@ -1,15 +1,162 @@
 import React from 'react'
 
 interface PlaybackControlsProps {
-  // TODO: Define props for playback controls
-  isPlaying?: boolean; // Placeholder prop
+  isPlaying: boolean
+  onPlayPause: () => void
+  onStepPrev: () => void
+  onStepNext: () => void
+  onReset: () => void
+  onSpeedChange: (speed: number) => void
+  currentFrame: number
+  totalFrames: number
+  speed: number
+  canStepPrev: boolean
+  canStepNext: boolean
 }
 
-const PlaybackControls: React.FC<PlaybackControlsProps> = () => {
+const PlaybackControls: React.FC<PlaybackControlsProps> = ({
+  isPlaying,
+  onPlayPause,
+  onStepPrev,
+  onStepNext,
+  onReset,
+  onSpeedChange,
+  currentFrame,
+  totalFrames,
+  speed,
+  canStepPrev,
+  canStepNext
+}) => {
+  const speeds = [0.5, 1, 2, 4]
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return // Don't handle shortcuts when typing
+      }
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault()
+          onPlayPause()
+          break
+        case 'ArrowLeft':
+          e.preventDefault()
+          if (canStepPrev) onStepPrev()
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          if (canStepNext) onStepNext()
+          break
+        case 'r':
+        case 'R':
+          e.preventDefault()
+          onReset()
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onPlayPause, onStepPrev, onStepNext, onReset, canStepPrev, canStepNext])
+
   return (
-    <div className="playback-controls">
-      <h3>Playback Controls</h3>
-      {/* TODO: Implement play, pause, step, reset controls */}
+    <div className="bg-gray-800 border-t border-gray-700 p-4">
+      <div className="flex items-center justify-between max-w-4xl mx-auto">
+        {/* Left side - Playback controls */}
+        <div className="flex items-center space-x-3">
+          {/* Play/Pause */}
+          <button
+            onClick={onPlayPause}
+            className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition-colors"
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+            title={`${isPlaying ? 'Pause' : 'Play'} (Space)`}
+          >
+            {isPlaying ? (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 00-1 1v2a1 1 0 001 1h6a1 1 0 001-1V9a1 1 0 00-1-1H7z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+              </svg>
+            )}
+          </button>
+
+          {/* Step Previous */}
+          <button
+            onClick={onStepPrev}
+            disabled={!canStepPrev}
+            className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-500 text-white p-3 rounded-lg transition-colors disabled:cursor-not-allowed"
+            aria-label="Step to previous frame"
+            title="Previous frame (←)"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          </button>
+
+          {/* Step Next */}
+          <button
+            onClick={onStepNext}
+            disabled={!canStepNext}
+            className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-500 text-white p-3 rounded-lg transition-colors disabled:cursor-not-allowed"
+            aria-label="Step to next frame"
+            title="Next frame (→)"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+          </button>
+
+          {/* Reset */}
+          <button
+            onClick={onReset}
+            className="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-lg transition-colors"
+            aria-label="Reset to first frame"
+            title="Reset (R)"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Center - Progress indicator */}
+        <div className="flex items-center space-x-4">
+          <div className="text-center">
+            <div className="text-sm text-gray-400">Frame {currentFrame} of {totalFrames}</div>
+            <div className="w-32 bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-red-600 h-2 rounded-full transition-all duration-200"
+                style={{ width: `${totalFrames > 0 ? (currentFrame / totalFrames) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right side - Speed control */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-400">Speed:</span>
+          <div className="flex bg-gray-700 rounded-lg p-1">
+            {speeds.map((speedOption) => (
+              <button
+                key={speedOption}
+                onClick={() => onSpeedChange(speedOption)}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  speed === speedOption
+                    ? 'bg-red-600 text-white'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-600'
+                }`}
+                aria-label={`Set speed to ${speedOption}x`}
+              >
+                {speedOption}×
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
