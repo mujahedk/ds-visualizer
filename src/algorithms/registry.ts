@@ -3,87 +3,500 @@ import { algorithmPresets } from './presets'
 
 // Mock frame generators for each algorithm type
 const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unknown>>[] => {
-  const mockStates = {
+  const mockFrames = {
     heap: [
-      { elements: [10, 5, 3], tree: "balanced" },
-      { elements: [15, 10, 5, 3], tree: "inserting" },
-      { elements: [15, 10, 5, 3], tree: "bubbling up" },
-      { elements: [15, 10, 5, 3], tree: "balanced" },
-      { elements: [10, 5, 3], tree: "extracting max" }
+      {
+        state: { array: [10, 5, 3], highlight: [] },
+        meta: { step: 1, label: "Initial heap state" }
+      },
+      {
+        state: { array: [10, 5, 3, 15], highlight: [3] },
+        meta: { step: 2, label: "Inserting element 15" }
+      },
+      {
+        state: { array: [15, 5, 3, 10], highlight: [0, 3] },
+        meta: { step: 3, label: "siftUp swap(i=3,j=0)" }
+      },
+      {
+        state: { array: [15, 5, 3, 10], highlight: [] },
+        meta: { step: 4, label: "Heap property restored" }
+      },
+      {
+        state: { array: [10, 5, 3], highlight: [0] },
+        meta: { step: 5, label: "Extracting maximum element" }
+      },
+      {
+        state: { array: [10, 5, 3], highlight: [0, 1] },
+        meta: { step: 6, label: "siftDown swap(i=0,j=1)" }
+      },
+      {
+        state: { array: [10, 5, 3], highlight: [] },
+        meta: { step: 7, label: "Final heap state" }
+      }
     ],
     bst: [
-      { nodes: [{ value: 50, left: null, right: null }], height: 1 },
-      { nodes: [{ value: 50, left: { value: 30 }, right: null }], height: 2 },
-      { nodes: [{ value: 50, left: { value: 30 }, right: { value: 70 } }], height: 2 },
-      { nodes: [{ value: 50, left: { value: 30 }, right: { value: 70 } }], height: 2, searching: 30 },
-      { nodes: [{ value: 70, left: { value: 30 }, right: null }], height: 2, deleted: 50 }
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 50, left: null, right: null }
+          ],
+          root: "n1",
+          highlight: []
+        },
+        meta: { step: 1, label: "Initial tree state" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 50, left: "n2", right: null },
+            { id: "n2", key: 30, left: null, right: null }
+          ],
+          root: "n1",
+          highlight: ["n2"]
+        },
+        meta: { step: 2, label: "Inserting key 30" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 50, left: "n2", right: "n3" },
+            { id: "n2", key: 30, left: null, right: null },
+            { id: "n3", key: 70, left: null, right: null }
+          ],
+          root: "n1",
+          highlight: ["n3"]
+        },
+        meta: { step: 3, label: "Inserting key 70" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 50, left: "n2", right: "n3" },
+            { id: "n2", key: 30, left: null, right: null },
+            { id: "n3", key: 70, left: null, right: null }
+          ],
+          root: "n1",
+          highlight: ["n2"]
+        },
+        meta: { step: 4, label: "Searching for key 30" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 50, left: "n2", right: "n3" },
+            { id: "n2", key: 30, left: null, right: null },
+            { id: "n3", key: 70, left: null, right: null }
+          ],
+          root: "n1",
+          highlight: ["n2"]
+        },
+        meta: { step: 5, label: "Key found at node n2" }
+      }
     ],
     avl: [
-      { nodes: [{ value: 10, height: 1, balance: 0 }], rotations: 0 },
-      { nodes: [{ value: 10, height: 2, balance: -1 }, { value: 5, height: 1, balance: 0 }], rotations: 0 },
-      { nodes: [{ value: 10, height: 2, balance: -2 }, { value: 5, height: 1, balance: 0 }], rotations: 1, needsRotation: true },
-      { nodes: [{ value: 5, height: 2, balance: 0 }, { value: 3, height: 1, balance: 0 }, { value: 10, height: 1, balance: 0 }], rotations: 1 },
-      { nodes: [{ value: 5, height: 2, balance: 0 }, { value: 3, height: 1, balance: 0 }, { value: 10, height: 1, balance: 0 }], rotations: 1, balanced: true }
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 30, left: null, right: null, height: 1 }
+          ],
+          root: "n1",
+          highlight: []
+        },
+        meta: { step: 1, label: "Initial AVL tree" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 30, left: "n2", right: null, height: 2 },
+            { id: "n2", key: 20, left: null, right: null, height: 1 }
+          ],
+          root: "n1",
+          highlight: ["n2"]
+        },
+        meta: { step: 2, label: "Inserting key 20" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 30, left: "n2", right: null, height: 2 },
+            { id: "n2", key: 20, left: null, right: null, height: 1 }
+          ],
+          root: "n1",
+          highlight: ["n1", "n2"]
+        },
+        meta: { step: 3, label: "Height imbalance detected" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 20, left: null, right: "n2", height: 2 },
+            { id: "n2", key: 30, left: null, right: null, height: 1 }
+          ],
+          root: "n1",
+          highlight: ["n1", "n2"]
+        },
+        meta: { step: 4, label: "LL rotation at node n1" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", key: 20, left: null, right: "n2", height: 2 },
+            { id: "n2", key: 30, left: null, right: null, height: 1 }
+          ],
+          root: "n1",
+          highlight: []
+        },
+        meta: { step: 5, label: "Tree rebalanced" }
+      }
     ],
     "linked-list": [
-      { nodes: [{ value: 5, next: null }], head: 0, tail: 0, size: 1 },
-      { nodes: [{ value: 5, next: null }, { value: 10, next: null }], head: 0, tail: 1, size: 2 },
-      { nodes: [{ value: 15, next: 0 }, { value: 5, next: 1 }, { value: 10, next: null }], head: 0, tail: 2, size: 3 },
-      { nodes: [{ value: 15, next: 0 }, { value: 5, next: 1 }, { value: 10, next: null }], head: 0, tail: 2, size: 3, inserting: "at position 1" },
-      { nodes: [{ value: 15, next: 1 }, { value: 5, next: 2 }, { value: 10, next: null }], head: 0, tail: 2, size: 3, inserted: "15 at position 1" }
+      {
+        state: {
+          nodes: [
+            { id: "n1", value: 10, next: null, prev: null }
+          ],
+          head: "n1",
+          tail: "n1",
+          highlight: []
+        },
+        meta: { step: 1, label: "Initial linked list" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", value: 10, next: "n2", prev: null },
+            { id: "n2", value: 20, next: null, prev: "n1" }
+          ],
+          head: "n1",
+          tail: "n2",
+          highlight: ["n2"]
+        },
+        meta: { step: 2, label: "Appending to end" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", value: 10, next: "n2", prev: null },
+            { id: "n2", value: 20, next: null, prev: "n1" }
+          ],
+          head: "n1",
+          tail: "n2",
+          highlight: ["n1"]
+        },
+        meta: { step: 3, label: "Prepending to start" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", value: 5, next: "n2", prev: null },
+            { id: "n2", value: 10, next: "n3", prev: "n1" },
+            { id: "n3", value: 20, next: null, prev: "n2" }
+          ],
+          head: "n1",
+          tail: "n3",
+          highlight: ["n1"]
+        },
+        meta: { step: 4, label: "Inserting 5 at start" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "n1", value: 5, next: "n2", prev: null },
+            { id: "n2", value: 10, next: "n3", prev: "n1" },
+            { id: "n3", value: 20, next: null, prev: "n2" }
+          ],
+          head: "n1",
+          tail: "n3",
+          highlight: ["n2"]
+        },
+        meta: { step: 5, label: "Searching for value 10" }
+      }
     ],
     array: [
-      { elements: [1, 2, 3, 4, 5], size: 5, capacity: 10 },
-      { elements: [1, 2, 3, 4, 5, 6], size: 6, capacity: 10, action: "appended 6" },
-      { elements: [1, 2, 3, 4, 5, 6], size: 6, capacity: 10, action: "accessing index 2" },
-      { elements: [1, 2, 8, 4, 5, 6], size: 6, capacity: 10, action: "set index 2 to 8" },
-      { elements: [1, 2, 8, 4, 5, 6], size: 6, capacity: 10, action: "searching for value 8" }
+      {
+        state: {
+          values: [64, 34, 25, 12, 22, 11, 90],
+          highlight: []
+        },
+        meta: { step: 1, label: "Initial array state" }
+      },
+      {
+        state: {
+          values: [64, 34, 25, 12, 22, 11, 90],
+          highlight: [0, 1]
+        },
+        meta: { step: 2, label: "Comparing elements at indices 0 and 1" }
+      },
+      {
+        state: {
+          values: [34, 64, 25, 12, 22, 11, 90],
+          highlight: [0, 1]
+        },
+        meta: { step: 3, label: "Swapping elements at indices 0 and 1" }
+      },
+      {
+        state: {
+          values: [34, 64, 25, 12, 22, 11, 90],
+          highlight: [1, 2]
+        },
+        meta: { step: 4, label: "Comparing elements at indices 1 and 2" }
+      },
+      {
+        state: {
+          values: [34, 25, 64, 12, 22, 11, 90],
+          highlight: [1, 2]
+        },
+        meta: { step: 5, label: "Swapping elements at indices 1 and 2" }
+      },
+      {
+        state: {
+          values: [11, 12, 22, 25, 34, 64, 90],
+          highlight: []
+        },
+        meta: { step: 6, label: "Array sorted" }
+      }
     ],
     stack: [
-      { elements: [], top: -1, capacity: 10, action: "empty stack" },
-      { elements: [5], top: 0, capacity: 10, action: "pushed 5" },
-      { elements: [5, 10], top: 1, capacity: 10, action: "pushed 10" },
-      { elements: [5, 10], top: 1, capacity: 10, action: "peeking top" },
-      { elements: [5], top: 0, capacity: 10, action: "popped 10" }
+      {
+        state: {
+          items: [],
+          highlightIndex: undefined
+        },
+        meta: { step: 1, label: "Initial empty stack" }
+      },
+      {
+        state: {
+          items: ["push"],
+          highlightIndex: 0
+        },
+        meta: { step: 2, label: "Pushing element 'push'" }
+      },
+      {
+        state: {
+          items: ["push", "pop"],
+          highlightIndex: 1
+        },
+        meta: { step: 3, label: "Pushing element 'pop'" }
+      },
+      {
+        state: {
+          items: ["push", "pop", "peek"],
+          highlightIndex: 2
+        },
+        meta: { step: 4, label: "Pushing element 'peek'" }
+      },
+      {
+        state: {
+          items: ["push", "pop", "peek"],
+          highlightIndex: 2
+        },
+        meta: { step: 5, label: "Peeking at top element" }
+      },
+      {
+        state: {
+          items: ["push", "pop"],
+          highlightIndex: 1
+        },
+        meta: { step: 6, label: "Popping element 'peek'" }
+      }
     ],
     queue: [
-      { elements: [], front: 0, rear: -1, size: 0, capacity: 10 },
-      { elements: [5], front: 0, rear: 0, size: 1, capacity: 10, action: "enqueued 5" },
-      { elements: [5, 10], front: 0, rear: 1, size: 2, capacity: 10, action: "enqueued 10" },
-      { elements: [5, 10], front: 0, rear: 1, size: 2, capacity: 10, action: "peeking front" },
-      { elements: [10], front: 1, rear: 1, size: 1, capacity: 10, action: "dequeued 5" }
+      {
+        state: {
+          items: [],
+          highlightIndex: undefined
+        },
+        meta: { step: 1, label: "Initial empty queue" }
+      },
+      {
+        state: {
+          items: ["task1"],
+          highlightIndex: 0
+        },
+        meta: { step: 2, label: "Enqueuing 'task1'" }
+      },
+      {
+        state: {
+          items: ["task1", "task2"],
+          highlightIndex: 1
+        },
+        meta: { step: 3, label: "Enqueuing 'task2'" }
+      },
+      {
+        state: {
+          items: ["task1", "task2", "task3"],
+          highlightIndex: 0
+        },
+        meta: { step: 4, label: "Processing front element 'task1'" }
+      },
+      {
+        state: {
+          items: ["task2", "task3"],
+          highlightIndex: 0
+        },
+        meta: { step: 5, label: "Dequeuing 'task1'" }
+      },
+      {
+        state: {
+          items: ["task2", "task3"],
+          highlightIndex: 0
+        },
+        meta: { step: 6, label: "Processing front element 'task2'" }
+      }
     ],
     hash: [
-      { buckets: [], size: 0, capacity: 16, loadFactor: 0 },
-      { buckets: [["key1", "value1"]], size: 1, capacity: 16, loadFactor: 0.0625, action: "put key1=value1" },
-      { buckets: [["key1", "value1"], ["key2", "value2"]], size: 2, capacity: 16, loadFactor: 0.125, action: "put key2=value2" },
-      { buckets: [["key1", "value1"], ["key2", "value2"]], size: 2, capacity: 16, loadFactor: 0.125, action: "get key1" },
-      { buckets: [["key2", "value2"]], size: 1, capacity: 16, loadFactor: 0.0625, action: "removed key1" }
+      {
+        state: {
+          buckets: [],
+          highlight: {}
+        },
+        meta: { step: 1, label: "Initial empty hash table" }
+      },
+      {
+        state: {
+          buckets: [
+            {
+              index: 0,
+              entries: [
+                { key: "name", value: "John", id: "e1" }
+              ]
+            }
+          ],
+          highlight: { bucket: 0, entryId: "e1" }
+        },
+        meta: { step: 2, label: "Inserting key 'name' with value 'John'" }
+      },
+      {
+        state: {
+          buckets: [
+            {
+              index: 0,
+              entries: [
+                { key: "name", value: "John", id: "e1" },
+                { key: "age", value: 30, id: "e2" }
+              ]
+            }
+          ],
+          highlight: { bucket: 0, entryId: "e2" }
+        },
+        meta: { step: 3, label: "Hash collision at bucket 0" }
+      },
+      {
+        state: {
+          buckets: [
+            {
+              index: 0,
+              entries: [
+                { key: "name", value: "John", id: "e1" },
+                { key: "age", value: 30, id: "e2" }
+              ]
+            },
+            {
+              index: 1,
+              entries: [
+                { key: "city", value: "NYC", id: "e3" }
+              ]
+            }
+          ],
+          highlight: { bucket: 1, entryId: "e3" }
+        },
+        meta: { step: 4, label: "Inserting key 'city' with value 'NYC'" }
+      },
+      {
+        state: {
+          buckets: [
+            {
+              index: 0,
+              entries: [
+                { key: "name", value: "John", id: "e1" },
+                { key: "age", value: 30, id: "e2" }
+              ]
+            },
+            {
+              index: 1,
+              entries: [
+                { key: "city", value: "NYC", id: "e3" }
+              ]
+            }
+          ],
+          highlight: { bucket: 0, entryId: "e1" }
+        },
+        meta: { step: 5, label: "Retrieving value for key 'name'" }
+      }
     ],
     graph: [
-      { vertices: ["A"], edges: [], action: "added vertex A" },
-      { vertices: ["A", "B"], edges: [["A", "B"]], action: "added edge A->B" },
-      { vertices: ["A", "B", "C"], edges: [["A", "B"], ["B", "C"]], action: "added edge B->C" },
-      { vertices: ["A", "B", "C"], edges: [["A", "B"], ["B", "C"]], action: "BFS traversal starting from A" },
-      { vertices: ["A", "B", "C"], edges: [["A", "B"], ["B", "C"]], action: "shortest path A->C: A->B->C" }
+      {
+        state: {
+          nodes: [
+            { id: "A", label: "Start", x: 100, y: 100, visited: false, dist: 0 }
+          ],
+          edges: [],
+          current: undefined
+        },
+        meta: { step: 1, label: "Initial graph state" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "A", label: "Start", x: 100, y: 100, visited: false, dist: 0 },
+            { id: "B", label: "Node B", x: 200, y: 150, visited: false, dist: undefined }
+          ],
+          edges: [
+            { id: "e1", u: "A", v: "B", w: 5, directed: true, relaxed: false }
+          ],
+          current: undefined
+        },
+        meta: { step: 2, label: "Adding vertex B and edge A->B" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "A", label: "Start", x: 100, y: 100, visited: false, dist: 0 },
+            { id: "B", label: "Node B", x: 200, y: 150, visited: false, dist: undefined },
+            { id: "C", label: "Node C", x: 150, y: 200, visited: false, dist: undefined }
+          ],
+          edges: [
+            { id: "e1", u: "A", v: "B", w: 5, directed: true, relaxed: false },
+            { id: "e2", u: "A", v: "C", w: 3, directed: true, relaxed: false }
+          ],
+          current: undefined
+        },
+        meta: { step: 3, label: "Adding vertex C and edge A->C" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "A", label: "Start", x: 100, y: 100, visited: true, dist: 0 },
+            { id: "B", label: "Node B", x: 200, y: 150, visited: false, dist: 5 },
+            { id: "C", label: "Node C", x: 150, y: 200, visited: false, dist: 3 }
+          ],
+          edges: [
+            { id: "e1", u: "A", v: "B", w: 5, directed: true, relaxed: true },
+            { id: "e2", u: "A", v: "C", w: 3, directed: true, relaxed: true }
+          ],
+          current: "A"
+        },
+        meta: { step: 4, label: "Starting BFS from node A" }
+      },
+      {
+        state: {
+          nodes: [
+            { id: "A", label: "Start", x: 100, y: 100, visited: true, dist: 0 },
+            { id: "B", label: "Node B", x: 200, y: 150, visited: true, dist: 5 },
+            { id: "C", label: "Node C", x: 150, y: 200, visited: true, dist: 3 }
+          ],
+          edges: [
+            { id: "e1", u: "A", v: "B", w: 5, directed: true, relaxed: true },
+            { id: "e2", u: "A", v: "C", w: 3, directed: true, relaxed: true }
+          ],
+          current: "B"
+        },
+        meta: { step: 5, label: "Visiting node B" }
+      }
     ]
   }
 
-  const mockLabels = [
-    "Initial state",
-    "Processing input",
-    "Updating structure",
-    "Validating state",
-    "Final result"
-  ]
-
-  return mockStates[algorithmKey].map((state, index) => ({
-    state,
-    meta: {
-      step: index + 1,
-      label: mockLabels[index]
-    }
-  }))
+  return mockFrames[algorithmKey] || []
 }
 
 // Generic command parser for all algorithms

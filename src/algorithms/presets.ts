@@ -6,6 +6,7 @@ export interface AlgorithmPreset {
   description: string
   sampleInputs: string[]
   complexities: Record<string, string>
+  presets: string[]
 }
 
 export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
@@ -19,7 +20,8 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Extract": "O(log n)",
       "Peek": "O(1)",
       "Build": "O(n)"
-    }
+    },
+    presets: ["Build Max Heap", "Insert Operations", "Extract Operations"]
   },
   bst: {
     key: "bst",
@@ -31,7 +33,8 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Search": "O(h)",
       "Delete": "O(h)",
       "Traversal": "O(n)"
-    }
+    },
+    presets: ["Build BST", "Search Operations", "Delete Operations"]
   },
   avl: {
     key: "avl",
@@ -43,7 +46,8 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Delete": "O(log n)",
       "Search": "O(log n)",
       "Balance": "O(1)"
-    }
+    },
+    presets: ["Build AVL Tree", "Insert & Balance", "Rotation Examples"]
   },
   "linked-list": {
     key: "linked-list",
@@ -55,7 +59,8 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Search": "O(n)",
       "Insert": "O(1)",
       "Delete": "O(1)"
-    }
+    },
+    presets: ["Build List", "Insert Operations", "Reverse List"]
   },
   array: {
     key: "array",
@@ -67,7 +72,8 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Search": "O(n)",
       "Insert": "O(n)",
       "Delete": "O(n)"
-    }
+    },
+    presets: ["Sorting Demo", "Search Operations", "Array Manipulation"]
   },
   stack: {
     key: "stack",
@@ -79,7 +85,8 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Pop": "O(1)",
       "Peek": "O(1)",
       "Search": "O(n)"
-    }
+    },
+    presets: ["Stack Operations", "Function Call Stack", "Expression Evaluation"]
   },
   queue: {
     key: "queue",
@@ -91,7 +98,8 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Dequeue": "O(1)",
       "Peek": "O(1)",
       "Search": "O(n)"
-    }
+    },
+    presets: ["Queue Operations", "Task Scheduling", "Breadth-First Search"]
   },
   hash: {
     key: "hash",
@@ -103,7 +111,8 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Search": "O(1)",
       "Delete": "O(1)",
       "Worst Case": "O(n)"
-    }
+    },
+    presets: ["Hash Table Operations", "Collision Resolution", "Rehashing Demo"]
   },
   graph: {
     key: "graph",
@@ -115,6 +124,7 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
       "Add Edge": "O(1)",
       "Remove Vertex": "O(V + E)",
       "Traversal": "O(V + E)"
-    }
+    },
+    presets: ["Graph Construction", "BFS Traversal", "Shortest Path"]
   }
 }

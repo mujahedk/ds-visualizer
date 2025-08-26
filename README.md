@@ -90,6 +90,28 @@ The project includes a flexible visualization layer that can render any algorith
 - **Responsive design**: Works in any container size
 - **Custom renderers**: Support for custom visualization logic
 
+## 🎯 Preset System
+
+The project includes a comprehensive preset system that provides realistic algorithm demonstrations:
+
+### **Algorithm Presets**
+Each algorithm comes with 2-3 named presets:
+- **Heap**: "Build Max Heap", "Insert Operations", "Extract Operations"
+- **BST**: "Build BST", "Search Operations", "Delete Operations"
+- **AVL**: "Build AVL Tree", "Insert & Balance", "Rotation Examples"
+- **Linked List**: "Build List", "Insert Operations", "Reverse List"
+- **Array**: "Sorting Demo", "Search Operations", "Array Manipulation"
+- **Stack**: "Stack Operations", "Function Call Stack", "Expression Evaluation"
+- **Queue**: "Queue Operations", "Task Scheduling", "Breadth-First Search"
+- **Hash Table**: "Hash Table Operations", "Collision Resolution", "Rehashing Demo"
+- **Graph**: "Graph Construction", "BFS Traversal", "Shortest Path"
+
+### **Mock Frames**
+- **Realistic data**: Each preset generates 5-10 frames following the schema
+- **Progressive operations**: Frames show step-by-step algorithm execution
+- **Highlighting**: Visual indicators for what's changing in each step
+- **Descriptive labels**: Clear operation descriptions in meta.labels
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -136,6 +158,7 @@ npm run test:ui
 - Interactive playground with mock frames
 - Universal visualization canvas system
 - Algorithm-specific view placeholders
+- Comprehensive preset system with realistic mock frames
 
 🚧 **In Progress:**
 - Algorithm implementations

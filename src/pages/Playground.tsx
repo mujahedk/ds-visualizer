@@ -4,7 +4,7 @@ import PlaybackControls from '../player/PlaybackControls'
 import { usePlayerStore, getCurrentFrame } from '../player/playerStore'
 import Canvas from '../viz/Canvas'
 import Toast from '../components/Toast'
-import { getAlgorithms, getAlgorithm, AlgorithmKey } from '../algorithms'
+import { getAlgorithms, getAlgorithm, AlgorithmKey, algorithmPresets } from '../algorithms'
 
 const Playground: React.FC = () => {
   // Player store
@@ -174,9 +174,9 @@ const Playground: React.FC = () => {
                 defaultValue=""
               >
                 <option value="" disabled>Select a preset...</option>
-                {frames.map((_, index) => (
+                {currentAlgorithm && algorithmPresets[currentAlgorithm.key].presets.map((preset: string, index: number) => (
                   <option key={index} value={index}>
-                    Preset {index + 1}
+                    {preset}
                   </option>
                 ))}
               </select>
