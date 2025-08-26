@@ -30,6 +30,7 @@ export interface AlgorithmDescriptor {
   description: string
   complexities: Record<string, string>
   createMockFrames(): Frame<Record<string, unknown>>[]
+  createFramesFromInput?(input: string): Frame<Record<string, unknown>>[]
   parseCommand(input: string): Command | null
   // Future: run(commands: Command[]): Frame<Record<string, unknown>>[] - not implemented yet
 }

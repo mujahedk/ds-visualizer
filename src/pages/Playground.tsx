@@ -9,7 +9,7 @@ import { getAlgorithms, getAlgorithm, AlgorithmKey, algorithmPresets } from '../
 const Playground: React.FC = () => {
   const player = usePlayerStore()
   const { frames, index } = player
-  const { setFrames } = player
+  const { setFrames, setIndex, pause } = player
 
   const [algorithmKey, setAlgorithmKey] = useState<AlgorithmKey>('heap')
   const [commandInput, setCommandInput] = useState('')
@@ -55,7 +55,7 @@ const Playground: React.FC = () => {
         case 'r':
         case 'R':
           event.preventDefault()
-          player.reset()
+          handleResetAlgorithm()
           break
         case '?':
           event.preventDefault()
@@ -68,12 +68,22 @@ const Playground: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [player])
 
+  // Handle Cmd/Ctrl+Enter in command input
+  const handleCommandKeyDown = (event: React.KeyboardEvent) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+      event.preventDefault()
+      handleApply()
+    }
+  }
+
   const handleAlgorithmChange = useCallback((newKey: AlgorithmKey) => {
     setAlgorithmKey(newKey)
+    setCommandInput('') // Clear input when switching algorithms
   }, [])
 
   const handleRunPreset = useCallback((presetIndex: number) => {
     if (!currentAlgorithm) return
+
     const presets = currentAlgorithm.createMockFrames()
     if (presets[presetIndex]) {
       setFrames(presets)
@@ -82,7 +92,43 @@ const Playground: React.FC = () => {
   }, [currentAlgorithm, setFrames, algorithmKey])
 
   const handleApply = useCallback(() => {
-    if (!currentAlgorithm || !commandInput.trim()) return
+    if (!currentAlgorithm || !commandInput.trim()) {
+      setToast({
+        message: 'Please enter some commands to execute',
+        type: 'warning'
+      })
+      return
+    }
+    
+    // Try to use real algorithm execution if available
+    if (currentAlgorithm.createFramesFromInput) {
+      try {
+        const frames = currentAlgorithm.createFramesFromInput(commandInput.trim())
+        if (frames.length > 0) {
+          setFrames(frames)
+          setToast({
+            message: `Executed commands: ${commandInput.trim()} (${frames.length} frames generated)`,
+            type: 'success'
+          })
+          return
+        } else {
+          setToast({
+            message: 'No frames generated. Check your command format.',
+            type: 'warning'
+          })
+          return
+        }
+      } catch (error) {
+        console.error('Error executing algorithm:', error)
+        setToast({
+          message: 'Error executing algorithm. Check command format.',
+          type: 'error'
+        })
+        return
+      }
+    }
+    
+    // Fallback to mock command parsing
     const command = currentAlgorithm.parseCommand(commandInput.trim())
     if (command) {
       setToast({
@@ -95,19 +141,33 @@ const Playground: React.FC = () => {
         type: 'warning'
       })
     }
-  }, [currentAlgorithm, commandInput])
+  }, [currentAlgorithm, commandInput, setFrames])
 
   const handleResetAlgorithm = useCallback(() => {
     if (currentAlgorithm) {
       const newFrames = currentAlgorithm.createMockFrames()
       setFrames(newFrames)
+      setIndex(0) // Reset to first frame
+      pause() // Pause playback
       setToast({ message: 'Algorithm reset to initial state', type: 'success' })
     }
-  }, [currentAlgorithm, setFrames])
+  }, [currentAlgorithm, setFrames, setIndex, pause])
 
   const getCommandHelperText = () => {
     if (!currentAlgorithm) return 'Select an algorithm to see command examples'
+    
+    if (algorithmKey === 'heap') {
+      return 'Examples: insert 5,1,9; pop 2; insert 10,3,7; pop 1'
+    }
+    
     return `Examples: ${algorithmPresets[algorithmKey].sampleInputs.slice(0, 3).join(', ')}`
+  }
+
+  const getCommandPlaceholder = () => {
+    if (algorithmKey === 'heap') {
+      return 'insert 5,1,9,2,7; pop 2\ninsert 10; insert 3,7; pop 1'
+    }
+    return 'insert 5, delete 3, search 10'
   }
 
   const getCanvasAriaLabel = () => {
@@ -123,10 +183,9 @@ const Playground: React.FC = () => {
       <div className="bg-gray-800 border-b border-gray-700 p-4">
         <Container>
           <div className="flex items-center justify-between">
+            {/* Algorithm Selector */}
             <div className="flex items-center space-x-4">
-              <label htmlFor="algorithm-select" className="text-white font-medium">
-                Algorithm:
-              </label>
+              <label htmlFor="algorithm-select" className="text-white font-medium">Algorithm:</label>
               <select
                 id="algorithm-select"
                 value={algorithmKey}
@@ -135,9 +194,7 @@ const Playground: React.FC = () => {
                 aria-label="Select algorithm to visualize"
               >
                 {algorithms.map((algo) => (
-                  <option key={algo.key} value={algo.key}>
-                    {algo.title}
-                  </option>
+                  <option key={algo.key} value={algo.key}>{algo.title}</option>
                 ))}
               </select>
             </div>
@@ -146,9 +203,9 @@ const Playground: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-400 text-sm">Complexities:</span>
                   {Object.entries(currentAlgorithm.complexities).slice(0, 3).map(([operation, complexity]) => (
-                    <span 
-                      key={operation} 
-                      className="bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded" 
+                    <span
+                      key={operation}
+                      className="bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded"
                       title={`${operation}: ${complexity}`}
                       role="text"
                       aria-label={`${operation} complexity: ${complexity}`}
@@ -177,16 +234,37 @@ const Playground: React.FC = () => {
         <div className="w-80 bg-gray-800 border-r border-gray-700 p-6">
           <h2 className="text-xl font-semibold text-white mb-6">Controls</h2>
           
-          {/* Command Input */}
+          {/* Presets Section */}
+          <div className="mb-6">
+            <label htmlFor="preset-select" className="block text-gray-300 text-sm font-medium mb-2">Quick Presets:</label>
+            <select
+              id="preset-select"
+              onChange={(e) => handleRunPreset(parseInt(e.target.value))}
+              className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              defaultValue=""
+              aria-label="Select a preset to run"
+            >
+              <option value="" disabled>Select a preset...</option>
+              {currentAlgorithm && algorithmPresets[algorithmKey].presets.map((preset: string, index: number) => (
+                <option key={index} value={index}>
+                  {preset}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Custom Commands Section */}
           <div className="mb-6">
             <label htmlFor="command-input" className="block text-gray-300 text-sm font-medium mb-2">
-              Command(s):
+              Custom Commands:
+              <span className="text-gray-500 text-xs ml-2">(⌘+Enter to apply)</span>
             </label>
             <textarea
               id="command-input"
               value={commandInput}
               onChange={(e) => setCommandInput(e.target.value)}
-              placeholder="insert 5, 1, 9; pop 2"
+              onKeyDown={handleCommandKeyDown}
+              placeholder={getCommandPlaceholder()}
               className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-red-500"
               aria-label="Enter algorithm commands"
               aria-describedby="command-help"
@@ -198,41 +276,20 @@ const Playground: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="space-y-3">
-            <button 
-              onClick={handleApply} 
+            <button
+              onClick={handleApply}
               className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
               aria-label="Apply the entered commands"
             >
-              Apply
+              Run (⌘+Enter)
             </button>
-            <button 
-              onClick={handleResetAlgorithm} 
+            <button
+              onClick={handleResetAlgorithm}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
               aria-label="Reset algorithm to initial state"
             >
-              Reset
+              Reset (R)
             </button>
-            
-            {/* Run Preset Dropdown */}
-            <div className="relative">
-              <label htmlFor="preset-select" className="block text-gray-300 text-sm font-medium mb-2">
-                Run Preset:
-              </label>
-              <select
-                id="preset-select"
-                onChange={(e) => handleRunPreset(parseInt(e.target.value))}
-                className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
-                defaultValue=""
-                aria-label="Select a preset to run"
-              >
-                <option value="" disabled>Select a preset...</option>
-                {currentAlgorithm && algorithmPresets[currentAlgorithm.key].presets.map((preset: string, index: number) => (
-                  <option key={index} value={index}>
-                    {preset}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
           {/* Current Frame Info */}
@@ -240,38 +297,33 @@ const Playground: React.FC = () => {
             <div className="mt-6 p-4 bg-gray-700 rounded-lg">
               <h3 className="text-gray-300 text-sm font-medium mb-2">Current Frame</h3>
               <div className="text-white text-sm">
-                <div className="mb-1">
-                  <span className="text-gray-400">Step:</span> {currentFrame.meta.step}
-                </div>
-                <div>
-                  <span className="text-gray-400">Label:</span> {currentFrame.meta.label}
-                </div>
+                <div className="mb-1"><span className="text-gray-400">Step:</span> {currentFrame.meta.step}</div>
+                <div><span className="text-gray-400">Label:</span> {currentFrame.meta.label}</div>
               </div>
             </div>
           )}
         </div>
 
         {/* Right Panel - Canvas */}
-        <div className="flex-1 flex flex-col">
-          {/* Canvas Area */}
-          <div 
-            className="flex-1 bg-gray-900 p-6"
-            role="img"
-            aria-label={getCanvasAriaLabel()}
-          >
-            <Canvas
-              algorithmKey={algorithmKey}
-              frame={currentFrame}
-            />
-          </div>
-          
-          {/* Playback Controls */}
-          <PlaybackControls
-            player={player}
-            actions={player}
+        <div
+          className="flex-1 bg-gray-900 p-6"
+          role="img"
+          aria-label={getCanvasAriaLabel()}
+        >
+          <Canvas
+            algorithmKey={algorithmKey}
+            frame={currentFrame}
+            currentFrameIndex={index}
+            totalFrames={frames.length}
           />
         </div>
       </div>
+
+      {/* Playback Controls */}
+      <PlaybackControls
+        player={player}
+        actions={player}
+      />
 
       {/* Keyboard Shortcuts Help */}
       {showKeyboardShortcuts && (
@@ -299,6 +351,10 @@ const Playground: React.FC = () => {
               <div className="flex justify-between">
                 <span>R</span>
                 <span>Reset</span>
+              </div>
+              <div className="flex justify-between">
+                <span>⌘+Enter</span>
+                <span>Apply Commands</span>
               </div>
               <div className="flex justify-between">
                 <span>?</span>

@@ -1,36 +1,37 @@
 import { AlgorithmKey, AlgorithmDescriptor, Frame, Command } from './types'
 import { algorithmPresets } from './presets'
+import { runHeapCommands, parseHeapInput } from './heap'
 
-// Mock frame generators for each algorithm type
+// Mock frame generators for each algorithm type (keeping for non-heap algorithms)
 const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unknown>>[] => {
   const mockFrames = {
     heap: [
       {
-        state: { array: [10, 5, 3], highlight: [] },
+        state: { array: [10, 5, 3], highlight: [], swap: null },
         meta: { step: 1, label: "Initial heap state" }
       },
       {
-        state: { array: [10, 5, 3, 15], highlight: [3] },
+        state: { array: [10, 5, 3, 15], highlight: [3], swap: null },
         meta: { step: 2, label: "Inserting element 15" }
       },
       {
-        state: { array: [15, 5, 3, 10], highlight: [0, 3] },
+        state: { array: [15, 5, 3, 10], highlight: [0, 3], swap: [0, 3] },
         meta: { step: 3, label: "siftUp swap(i=3,j=0)" }
       },
       {
-        state: { array: [15, 5, 3, 10], highlight: [] },
+        state: { array: [15, 5, 3, 10], highlight: [], swap: null },
         meta: { step: 4, label: "Heap property restored" }
       },
       {
-        state: { array: [10, 5, 3], highlight: [0] },
+        state: { array: [10, 5, 3], highlight: [0], swap: null },
         meta: { step: 5, label: "Extracting maximum element" }
       },
       {
-        state: { array: [10, 5, 3], highlight: [0, 1] },
+        state: { array: [10, 5, 3], highlight: [0, 1], swap: [0, 1] },
         meta: { step: 6, label: "siftDown swap(i=0,j=1)" }
       },
       {
-        state: { array: [10, 5, 3], highlight: [] },
+        state: { array: [10, 5, 3], highlight: [], swap: null },
         meta: { step: 7, label: "Final heap state" }
       }
     ],
@@ -183,7 +184,7 @@ const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unkn
           tail: "n2",
           highlight: ["n1"]
         },
-        meta: { step: 3, label: "Prepending to start" }
+        meta: { step: 3, label: "Apply" }
       },
       {
         state: {
@@ -306,7 +307,7 @@ const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unkn
           items: [],
           highlightIndex: undefined
         },
-        meta: { step: 1, label: "Initial empty queue" }
+        meta: { step: 1, label: "Initial empty heap" }
       },
       {
         state: {
@@ -368,16 +369,11 @@ const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unkn
       },
       {
         state: {
-          buckets: [
-            {
-              index: 0,
-              entries: [
-                { key: "name", value: "John", id: "e1" },
-                { key: "age", value: 30, id: "e2" }
-              ]
-            }
+          nodes: [
+            { id: "n1", key: 30, left: null, right: null, height: 1 }
           ],
-          highlight: { bucket: 0, entryId: "e2" }
+          root: "n1",
+          highlight: []
         },
         meta: { step: 3, label: "Hash collision at bucket 0" }
       },
@@ -446,7 +442,7 @@ const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unkn
           ],
           current: undefined
         },
-        meta: { step: 2, label: "Adding vertex B and edge A->B" }
+        meta: { step: 2, label: "Inserting key 20" }
       },
       {
         state: {
@@ -467,8 +463,7 @@ const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unkn
         state: {
           nodes: [
             { id: "A", label: "Start", x: 100, y: 100, visited: true, dist: 0 },
-            { id: "B", label: "Node B", x: 200, y: 150, visited: false, dist: 5 },
-            { id: "C", label: "Node C", x: 150, y: 200, visited: false, dist: 3 }
+            { id: "n2", key: 20, left: null, right: null, height: 1 }
           ],
           edges: [
             { id: "e1", u: "A", v: "B", w: 5, directed: true, relaxed: true },
@@ -527,6 +522,32 @@ const parseCommand = (input: string): Command | null => {
 const createAlgorithmDescriptor = (key: AlgorithmKey): AlgorithmDescriptor => {
   const preset = algorithmPresets[key]
   
+  // Special handling for heap algorithm
+  if (key === 'heap') {
+    return {
+      key,
+      title: "Min Heap",
+      description: preset.description,
+      complexities: {
+        "Insert": "O(log n)",
+        "Pop": "O(log n)",
+        "Peek": "O(1)"
+      },
+      createMockFrames: () => createMockFrames(key),
+      createFramesFromInput: (input: string) => {
+        const commands = parseHeapInput(input)
+        const heapFrames = runHeapCommands(commands)
+        // Convert HeapState frames to Record<string, unknown> frames
+        return heapFrames.map(frame => ({
+          state: frame.state as Record<string, unknown>,
+          meta: frame.meta
+        }))
+      },
+      parseCommand
+    }
+  }
+  
+  // Default descriptor for other algorithms
   return {
     key,
     title: preset.title,
