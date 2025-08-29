@@ -119,8 +119,15 @@ const Playground: React.FC = () => {
         }
       } catch (error) {
         console.error('Error executing preset:', error)
+        
+        // Provide more helpful error messages for Array algorithm
+        let errorMessage = 'Error executing preset. Check preset format.'
+        if (algorithmKey === 'array') {
+          errorMessage = `Array preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
+        }
+        
         setToast({ 
-          message: 'Error executing preset. Check preset format.', 
+          message: errorMessage, 
           type: 'error' 
         })
       }
@@ -152,6 +159,8 @@ const Playground: React.FC = () => {
         const frames = currentAlgorithm.createFramesFromInput(commandInput.trim())
         if (frames.length > 0) {
           setFrames(frames)
+          setIndex(0) // Start at frame 0
+          pause() // Pause playback
           setToast({
             message: `Executed commands: ${commandInput.trim()} (${frames.length} frames generated)`,
             type: 'success'
@@ -166,8 +175,15 @@ const Playground: React.FC = () => {
         }
       } catch (error) {
         console.error('Error executing algorithm:', error)
+        
+        // Provide more helpful error messages for Array algorithm
+        let errorMessage = 'Error executing algorithm. Check command format.'
+        if (algorithmKey === 'array') {
+          errorMessage = `Array command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: insert 0 5; delete 1`
+        }
+        
         setToast({
-          message: 'Error executing algorithm. Check command format.',
+          message: errorMessage,
           type: 'error'
         })
         return
@@ -187,7 +203,7 @@ const Playground: React.FC = () => {
         type: 'warning'
       })
     }
-  }, [currentAlgorithm, commandInput, setFrames])
+  }, [currentAlgorithm, commandInput, setFrames, setIndex, pause, algorithmKey])
 
   const handleResetAlgorithm = useCallback(() => {
     if (currentAlgorithm) {
@@ -206,6 +222,10 @@ const Playground: React.FC = () => {
       return 'Examples: insert 5,1,9; pop 2; insert 10,3,7; pop 1'
     }
     
+    if (algorithmKey === 'array') {
+      return 'Formats: insert 3 42 or insert index=3 value=42; delete 2 or delete index=2; Separate with ; or newlines'
+    }
+    
     return `Examples: ${algorithmPresets[algorithmKey].sampleInputs.slice(0, 3).join(', ')}`
   }
 
@@ -213,6 +233,11 @@ const Playground: React.FC = () => {
     if (algorithmKey === 'heap') {
       return 'insert 5,1,9,2,7; pop 2\ninsert 10; insert 3,7; pop 1'
     }
+    
+    if (algorithmKey === 'array') {
+      return 'insert 0 5; insert 1 7\ninsert 1 6; delete 2'
+    }
+    
     return 'insert 5, delete 3, search 10'
   }
 
@@ -322,6 +347,24 @@ const Playground: React.FC = () => {
             <p id="command-help" className="text-gray-400 text-xs mt-2">
               {getCommandHelperText()}
             </p>
+            
+            {/* Array-specific detailed help */}
+            {algorithmKey === 'array' && (
+              <div className="mt-3 p-2 bg-gray-700 rounded border border-gray-600">
+                <details className="text-gray-300 text-xs">
+                  <summary className="cursor-pointer hover:text-white font-medium">
+                    📖 Array Command Reference
+                  </summary>
+                  <div className="mt-2 space-y-1">
+                    <div><strong>Insert:</strong> <code className="bg-gray-800 px-1 rounded">insert 0 5</code> or <code className="bg-gray-800 px-1 rounded">insert index=0 value=5</code></div>
+                    <div><strong>Delete:</strong> <code className="bg-gray-800 px-1 rounded">delete 1</code> or <code className="bg-gray-800 px-1 rounded">delete index=1</code></div>
+                    <div><strong>Reset:</strong> <code className="bg-gray-800 px-1 rounded">reset</code></div>
+                    <div><strong>Multiple:</strong> Separate with <code className="bg-gray-800 px-1 rounded">;</code> or newlines</div>
+                    <div><strong>Example:</strong> <code className="bg-gray-800 px-1 rounded">insert 0 5; insert 1 7; delete 0</code></div>
+                  </div>
+                </details>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}

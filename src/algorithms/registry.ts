@@ -1,6 +1,7 @@
 import { AlgorithmKey, AlgorithmDescriptor, Frame, Command } from './types'
 import { algorithmPresets } from './presets'
 import { runHeapCommands, parseHeapInput } from './heap'
+import { runArrayCommands, parseArrayInput } from './array'
 
 // Mock frame generators for each algorithm type (keeping for non-heap algorithms)
 const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unknown>>[] => {
@@ -215,46 +216,20 @@ const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unkn
     ],
     array: [
       {
-        state: {
-          values: [64, 34, 25, 12, 22, 11, 90],
-          highlight: []
-        },
-        meta: { step: 1, label: "Initial array state" }
+        state: { values: [], highlight: [], focusIndex: null, op: null },
+        meta: { step: 1, label: "Empty array" }
       },
       {
-        state: {
-          values: [64, 34, 25, 12, 22, 11, 90],
-          highlight: [0, 1]
-        },
-        meta: { step: 2, label: "Comparing elements at indices 0 and 1" }
+        state: { values: [5], highlight: [0], focusIndex: 0, op: "insert" },
+        meta: { step: 2, label: "Inserted 5 at index 0" }
       },
       {
-        state: {
-          values: [34, 64, 25, 12, 22, 11, 90],
-          highlight: [0, 1]
-        },
-        meta: { step: 3, label: "Swapping elements at indices 0 and 1" }
+        state: { values: [5, 7], highlight: [1], focusIndex: 1, op: "insert" },
+        meta: { step: 3, label: "Inserted 7 at index 1" }
       },
       {
-        state: {
-          values: [34, 64, 25, 12, 22, 11, 90],
-          highlight: [1, 2]
-        },
-        meta: { step: 4, label: "Comparing elements at indices 1 and 2" }
-      },
-      {
-        state: {
-          values: [34, 25, 64, 12, 22, 11, 90],
-          highlight: [1, 2]
-        },
-        meta: { step: 5, label: "Swapping elements at indices 1 and 2" }
-      },
-      {
-        state: {
-          values: [11, 12, 22, 25, 34, 64, 90],
-          highlight: []
-        },
-        meta: { step: 6, label: "Array sorted" }
+        state: { values: [5, 6, 7], highlight: [1], focusIndex: 1, op: "insert" },
+        meta: { step: 4, label: "Inserted 6 at index 1, shifted 7 right" }
       }
     ],
     stack: [
@@ -539,6 +514,31 @@ const createAlgorithmDescriptor = (key: AlgorithmKey): AlgorithmDescriptor => {
         const heapFrames = runHeapCommands(commands)
         // Convert HeapState frames to Record<string, unknown> frames
         return heapFrames.map(frame => ({
+          state: frame.state as Record<string, unknown>,
+          meta: frame.meta
+        }))
+      },
+      parseCommand
+    }
+  }
+  
+  // Special handling for array algorithm
+  if (key === 'array') {
+    return {
+      key,
+      title: "Array",
+      description: preset.description,
+      complexities: {
+        "InsertAtIndex": "O(n)",
+        "DeleteAtIndex": "O(n)",
+        "Access": "O(1)"
+      },
+      createMockFrames: () => createMockFrames(key),
+      createFramesFromInput: (input: string) => {
+        const commands = parseArrayInput(input)
+        const arrayFrames = runArrayCommands([], commands)
+        // Convert ArrayState frames to Record<string, unknown> frames
+        return arrayFrames.map(frame => ({
           state: frame.state as Record<string, unknown>,
           meta: frame.meta
         }))

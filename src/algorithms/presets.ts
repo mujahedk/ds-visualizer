@@ -105,20 +105,20 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
     key: "array",
     title: "Array",
     description: "A collection of elements stored at contiguous memory locations, accessible by index.",
-    sampleInputs: ["insert 5", "delete 3", "search 10", "sort", "reverse"],
-    complexities: { "Access": "O(1)", "Search": "O(n)", "Insert": "O(n)", "Delete": "O(n)" },
+    sampleInputs: ["insert 0 5", "insert 1 10", "delete 0", "reset"],
+    complexities: { "Access": "O(1)", "Search": "O(n)", "InsertAtIndex": "O(n)", "DeleteAtIndex": "O(n)" },
     presets: [
       {
-        description: "Bubble sort",
-        commands: "insert 64,34,25,12,22,11,90; sort"
+        description: "Insert sequence at middle",
+        commands: "insert 0 1; insert 1 2; insert 2 3; insert 1 99"
       },
       {
-        description: "Linear search",
-        commands: "insert 15,8,22,3,17,9,12; search 17"
+        description: "Delete from start/middle/end",
+        commands: "insert 0 10; insert 1 20; insert 2 30; delete 0; delete 1"
       },
       {
-        description: "Array manipulation",
-        commands: "insert 1,2,3,4,5; reverse; insert 10"
+        description: "Mixed operations",
+        commands: "insert 0 A; insert 1 B; insert 1 C; delete 2; insert 2 D"
       }
     ]
   },
