@@ -126,6 +126,8 @@ const Playground: React.FC = () => {
           errorMessage = `Array preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
         } else if (algorithmKey === 'bst') {
           errorMessage = `BST preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
+        } else if (algorithmKey === 'avl') {
+          errorMessage = `AVL preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
         }
         
         setToast({ 
@@ -184,6 +186,8 @@ const Playground: React.FC = () => {
           errorMessage = `Array command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: insert 0 5; delete 1`
         } else if (algorithmKey === 'bst') {
           errorMessage = `BST command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: insert 8; delete 3`
+        } else if (algorithmKey === 'avl') {
+          errorMessage = `AVL command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: insert 30; delete 20`
         }
         
         setToast({
@@ -234,6 +238,10 @@ const Playground: React.FC = () => {
       return 'Formats: insert 8 or insert key=8; delete 3 or delete key=3; Separate with ; or newlines; spaces tolerated'
     }
     
+    if (algorithmKey === 'avl') {
+      return 'Formats: insert 42 or insert key=42; delete 17 or delete key=17; Separate with ; or newlines'
+    }
+    
     return `Examples: ${algorithmPresets[algorithmKey].sampleInputs.slice(0, 3).join(', ')}`
   }
 
@@ -248,6 +256,10 @@ const Playground: React.FC = () => {
     
     if (algorithmKey === 'bst') {
       return 'insert 8; insert 3; insert 10\ninsert 1; delete 3'
+    }
+    
+    if (algorithmKey === 'avl') {
+      return 'insert 30; insert 20; insert 10\ninsert 15; delete 20'
     }
     
     return 'insert 5, delete 3, search 10'

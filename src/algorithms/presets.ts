@@ -67,20 +67,28 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
     complexities: { "Insert": "O(log n)", "Delete": "O(log n)", "Search": "O(log n)", "Balance": "O(1)" },
     presets: [
       {
-        description: "LL rotation",
-        commands: "insert 30,20,10"
+        description: "LL case",
+        commands: "insert 30; insert 20; insert 10"
       },
       {
-        description: "RR rotation",
-        commands: "insert 10,20,30"
+        description: "RR case",
+        commands: "insert 10; insert 20; insert 30"
       },
       {
-        description: "LR rotation",
-        commands: "insert 30,10,20"
+        description: "LR case",
+        commands: "insert 30; insert 10; insert 20"
       },
       {
-        description: "RL rotation",
-        commands: "insert 10,30,20"
+        description: "RL case",
+        commands: "insert 10; insert 30; insert 20"
+      },
+      {
+        description: "Mixed inserts",
+        commands: "insert 20; insert 4; insert 26; insert 3; insert 9; insert 15; insert 30; insert 2"
+      },
+      {
+        description: "Delete re-balance",
+        commands: "insert 9; insert 5; insert 10; insert 0; insert 6; insert 11; delete 0; delete 11"
       }
     ]
   },

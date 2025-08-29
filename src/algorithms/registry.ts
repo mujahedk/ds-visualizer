@@ -3,6 +3,7 @@ import { algorithmPresets } from './presets'
 import { runHeapCommands, parseHeapInput } from './heap'
 import { runArrayCommands, parseArrayInput } from './array'
 import { runBSTCommands, parseBSTInput } from './bst'
+import { runAVLCommands, parseAVLInput } from './avl'
 
 // Mock frame generators for each algorithm type (keeping for non-heap algorithms)
 const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unknown>>[] => {
@@ -565,6 +566,31 @@ const createAlgorithmDescriptor = (key: AlgorithmKey): AlgorithmDescriptor => {
         const bstFrames = runBSTCommands(commands)
         // Convert BSTState frames to Record<string, unknown> frames
         return bstFrames.map(frame => ({
+          state: frame.state as Record<string, unknown>,
+          meta: frame.meta
+        }))
+      },
+      parseCommand
+    }
+  }
+  
+  // Special handling for AVL algorithm
+  if (key === 'avl') {
+    return {
+      key,
+      title: "AVL Tree",
+      description: preset.description,
+      complexities: {
+        "Insert": "O(log n)",
+        "Search": "O(log n)",
+        "Delete": "O(log n)"
+      },
+      createMockFrames: () => createMockFrames(key),
+      createFramesFromInput: (input: string) => {
+        const commands = parseAVLInput(input)
+        const avlFrames = runAVLCommands(commands)
+        // Convert AVLState frames to Record<string, unknown> frames
+        return avlFrames.map(frame => ({
           state: frame.state as Record<string, unknown>,
           meta: frame.meta
         }))
