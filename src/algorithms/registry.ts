@@ -2,6 +2,7 @@ import { AlgorithmKey, AlgorithmDescriptor, Frame, Command } from './types'
 import { algorithmPresets } from './presets'
 import { runHeapCommands, parseHeapInput } from './heap'
 import { runArrayCommands, parseArrayInput } from './array'
+import { runBSTCommands, parseBSTInput } from './bst'
 
 // Mock frame generators for each algorithm type (keeping for non-heap algorithms)
 const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unknown>>[] => {
@@ -539,6 +540,31 @@ const createAlgorithmDescriptor = (key: AlgorithmKey): AlgorithmDescriptor => {
         const arrayFrames = runArrayCommands([], commands)
         // Convert ArrayState frames to Record<string, unknown> frames
         return arrayFrames.map(frame => ({
+          state: frame.state as Record<string, unknown>,
+          meta: frame.meta
+        }))
+      },
+      parseCommand
+    }
+  }
+  
+  // Special handling for BST algorithm
+  if (key === 'bst') {
+    return {
+      key,
+      title: "Binary Search Tree",
+      description: preset.description,
+      complexities: {
+        "Insert": "O(h)",
+        "Search": "O(h)",
+        "Delete": "O(h)"
+      },
+      createMockFrames: () => createMockFrames(key),
+      createFramesFromInput: (input: string) => {
+        const commands = parseBSTInput(input)
+        const bstFrames = runBSTCommands(commands)
+        // Convert BSTState frames to Record<string, unknown> frames
+        return bstFrames.map(frame => ({
           state: frame.state as Record<string, unknown>,
           meta: frame.meta
         }))

@@ -120,10 +120,12 @@ const Playground: React.FC = () => {
       } catch (error) {
         console.error('Error executing preset:', error)
         
-        // Provide more helpful error messages for Array algorithm
+        // Provide more helpful error messages for specific algorithms
         let errorMessage = 'Error executing preset. Check preset format.'
         if (algorithmKey === 'array') {
           errorMessage = `Array preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
+        } else if (algorithmKey === 'bst') {
+          errorMessage = `BST preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
         }
         
         setToast({ 
@@ -176,10 +178,12 @@ const Playground: React.FC = () => {
       } catch (error) {
         console.error('Error executing algorithm:', error)
         
-        // Provide more helpful error messages for Array algorithm
+        // Provide more helpful error messages for specific algorithms
         let errorMessage = 'Error executing algorithm. Check command format.'
         if (algorithmKey === 'array') {
           errorMessage = `Array command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: insert 0 5; delete 1`
+        } else if (algorithmKey === 'bst') {
+          errorMessage = `BST command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: insert 8; delete 3`
         }
         
         setToast({
@@ -226,6 +230,10 @@ const Playground: React.FC = () => {
       return 'Formats: insert 3 42 or insert index=3 value=42; delete 2 or delete index=2; Separate with ; or newlines'
     }
     
+    if (algorithmKey === 'bst') {
+      return 'Formats: insert 8 or insert key=8; delete 3 or delete key=3; Separate with ; or newlines; spaces tolerated'
+    }
+    
     return `Examples: ${algorithmPresets[algorithmKey].sampleInputs.slice(0, 3).join(', ')}`
   }
 
@@ -236,6 +244,10 @@ const Playground: React.FC = () => {
     
     if (algorithmKey === 'array') {
       return 'insert 0 5; insert 1 7\ninsert 1 6; delete 2'
+    }
+    
+    if (algorithmKey === 'bst') {
+      return 'insert 8; insert 3; insert 10\ninsert 1; delete 3'
     }
     
     return 'insert 5, delete 3, search 10'
@@ -361,6 +373,24 @@ const Playground: React.FC = () => {
                     <div><strong>Reset:</strong> <code className="bg-gray-800 px-1 rounded">reset</code></div>
                     <div><strong>Multiple:</strong> Separate with <code className="bg-gray-800 px-1 rounded">;</code> or newlines</div>
                     <div><strong>Example:</strong> <code className="bg-gray-800 px-1 rounded">insert 0 5; insert 1 7; delete 0</code></div>
+                  </div>
+                </details>
+              </div>
+            )}
+            
+            {/* BST-specific detailed help */}
+            {algorithmKey === 'bst' && (
+              <div className="mt-3 p-2 bg-gray-700 rounded border border-gray-600">
+                <details className="text-gray-300 text-xs">
+                  <summary className="cursor-pointer hover:text-white font-medium">
+                    📖 BST Command Reference
+                  </summary>
+                  <div className="mt-2 space-y-1">
+                    <div><strong>Insert:</strong> <code className="bg-gray-800 px-1 rounded">insert 8</code> or <code className="bg-gray-800 px-1 rounded">insert key=8</code></div>
+                    <div><strong>Delete:</strong> <code className="bg-gray-800 px-1 rounded">delete 3</code> or <code className="bg-gray-800 px-1 rounded">delete key=3</code></div>
+                    <div><strong>Reset:</strong> <code className="bg-gray-800 px-1 rounded">reset</code></div>
+                    <div><strong>Multiple:</strong> Separate with <code className="bg-gray-800 px-1 rounded">;</code> or newlines</div>
+                    <div><strong>Example:</strong> <code className="bg-gray-800 px-1 rounded">insert 8; insert 3; delete 3</code></div>
                   </div>
                 </details>
               </div>

@@ -42,16 +42,20 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
     complexities: { "Insert": "O(h)", "Search": "O(h)", "Delete": "O(h)", "Traversal": "O(n)" },
     presets: [
       {
-        description: "Balanced BST",
-        commands: "insert 50,30,70,20,40,60,80"
+        description: "Basic insert chain",
+        commands: "insert 8; insert 3; insert 10; insert 1; insert 6"
       },
       {
-        description: "Unbalanced BST",
-        commands: "insert 10,20,30,40,50,60,70"
+        description: "Delete leaf",
+        commands: "insert 8; insert 3; insert 10; insert 1; delete 1"
       },
       {
-        description: "BST operations",
-        commands: "insert 25,15,35,5,20,30,40; delete 15"
+        description: "Delete one-child",
+        commands: "insert 8; insert 3; insert 10; insert 9; delete 10"
+      },
+      {
+        description: "Delete two-children (successor)",
+        commands: "insert 8; insert 3; insert 10; insert 1; insert 6; insert 14; insert 13; delete 10"
       }
     ]
   },
