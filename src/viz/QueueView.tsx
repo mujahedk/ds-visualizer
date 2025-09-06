@@ -41,10 +41,6 @@ const QueueView: React.FC<QueueViewProps> = ({ frame, currentFrameIndex = 0, tot
   const startX = 100
   const startY = 100
 
-  // Arrow dimensions
-  const arrowLength = 30
-  const arrowHeadSize = 8
-
   return (
     <div className="w-full h-full p-6">
       <div className="text-center mb-6">

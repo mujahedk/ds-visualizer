@@ -20,7 +20,7 @@ export function parseHeapInput(input: string): HeapCommand[] {
     const commandType = parts[0].toLowerCase()
 
     switch (commandType) {
-      case 'insert':
+      case 'insert': {
         // Handle multiple values: insert 5,1,9 or insert 5 1 9
         const values = parts.slice(1)
         for (const valueStr of values) {
@@ -34,8 +34,9 @@ export function parseHeapInput(input: string): HeapCommand[] {
           }
         }
         break
+      }
 
-      case 'pop':
+      case 'pop': {
         // Handle repeat count: pop 2 means pop twice
         const repeatCount = parts.length > 1 ? parseInt(parts[1]) : 1
         if (!isNaN(repeatCount) && repeatCount > 0) {
@@ -46,6 +47,7 @@ export function parseHeapInput(input: string): HeapCommand[] {
           commands.push({ type: 'pop' })
         }
         break
+      }
 
       case 'reset':
         commands.push({ type: 'reset' })

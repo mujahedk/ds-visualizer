@@ -18,7 +18,7 @@ function deepClone<T>(obj: T): T {
   
   const cloned = {} as T
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       cloned[key] = deepClone(obj[key])
     }
   }
@@ -628,17 +628,19 @@ export function runAVLCommands(commands: AVLCommand[]): Frame<AVLState>[] {
   
   for (const command of commands) {
     switch (command.type) {
-      case 'insert':
+      case 'insert': {
         const insertFrames = insertNode(currentState, command.key, step)
         frames.push(...insertFrames)
         step += insertFrames.length
         break
+      }
         
-      case 'delete':
+      case 'delete': {
         const deleteFrames = deleteNode(currentState, command.key, step)
         frames.push(...deleteFrames)
         step += deleteFrames.length
         break
+      }
         
       case 'reset':
         currentState = createEmptyState()

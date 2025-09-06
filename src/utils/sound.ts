@@ -62,7 +62,7 @@ class SoundManager {
       source.connect(audioContext.destination)
       source.start(0)
       source.stop(0.001)
-    } catch (error) {
+    } catch {
       // Ignore errors for audio context
     }
   }
