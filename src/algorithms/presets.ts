@@ -138,20 +138,20 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
     key: "stack",
     title: "Stack",
     description: "A LIFO (Last In, First Out) data structure where elements are added and removed from the top.",
-    sampleInputs: ["push 10", "push 20", "pop", "peek", "isEmpty"],
-    complexities: { "Push": "O(1)", "Pop": "O(1)", "Peek": "O(1)", "Search": "O(n)" },
+    sampleInputs: ["push 5", "push A", "pop", "reset"],
+    complexities: { "Push": "O(1)", "Pop": "O(1)", "Peek": "O(1)" },
     presets: [
       {
-        description: "Stack operations",
-        commands: "push 10,20,30,40; pop 2; push 50"
+        description: "Basic push/pop",
+        commands: "push 1; push 2; push 3; pop 1; push 4; pop 2"
       },
       {
-        description: "Balanced parentheses",
-        commands: "push (,),[,],{,}; check balance"
+        description: "Pop on empty safe",
+        commands: "pop 1; push 7; pop 2"
       },
       {
-        description: "Stack reversal",
-        commands: "push 1,2,3,4,5; reverse"
+        description: "Strings + numbers",
+        commands: "push A; push 10; push B; pop 1; push 20"
       }
     ]
   },
@@ -163,16 +163,16 @@ export const algorithmPresets: Record<AlgorithmKey, AlgorithmPreset> = {
     complexities: { "Enqueue": "O(1)", "Dequeue": "O(1)", "Peek": "O(1)", "Search": "O(n)" },
     presets: [
       {
-        description: "Queue operations",
-        commands: "enqueue 10,20,30,40; dequeue 2; enqueue 50"
+        description: "Enqueue/Dequeue flow",
+        commands: "enqueue A; enqueue B; enqueue C; dequeue 1; enqueue D; dequeue 2"
       },
       {
-        description: "Circular queue",
-        commands: "enqueue 1,2,3,4,5; dequeue 3; enqueue 6,7,8"
+        description: "Only enqueues",
+        commands: "enqueue 1; enqueue 2; enqueue 3; enqueue 4"
       },
       {
-        description: "Priority queue",
-        commands: "enqueue 15,10,25,5,20; dequeue all"
+        description: "Dequeue on empty safe",
+        commands: "dequeue 1; enqueue X; dequeue 2"
       }
     ]
   },

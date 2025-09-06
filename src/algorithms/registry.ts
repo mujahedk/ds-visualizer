@@ -4,6 +4,8 @@ import { runHeapCommands, parseHeapInput } from './heap'
 import { runArrayCommands, parseArrayInput } from './array'
 import { runBSTCommands, parseBSTInput } from './bst'
 import { runAVLCommands, parseAVLInput } from './avl'
+import { runQueueCommands, parseQueueInput } from './queue'
+import { runStackCommands, parseStackInput } from './stack'
 
 // Mock frame generators for each algorithm type (keeping for non-heap algorithms)
 const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unknown>>[] => {
@@ -282,44 +284,56 @@ const createMockFrames = (algorithmKey: AlgorithmKey): Frame<Record<string, unkn
       {
         state: {
           items: [],
-          highlightIndex: undefined
+          op: null,
+          highlightIndex: null,
+          frontIndex: 0
         },
-        meta: { step: 1, label: "Initial empty heap" }
+        meta: { step: 1, label: "Initial empty queue" }
       },
       {
         state: {
-          items: ["task1"],
-          highlightIndex: 0
+          items: ["A"],
+          op: "enqueue",
+          highlightIndex: 0,
+          frontIndex: 0
         },
-        meta: { step: 2, label: "Enqueuing 'task1'" }
+        meta: { step: 2, label: "enqueue A" }
       },
       {
         state: {
-          items: ["task1", "task2"],
-          highlightIndex: 1
+          items: ["A", "B"],
+          op: "enqueue",
+          highlightIndex: 1,
+          frontIndex: 0
         },
-        meta: { step: 3, label: "Enqueuing 'task2'" }
+        meta: { step: 3, label: "enqueue B" }
       },
       {
         state: {
-          items: ["task1", "task2", "task3"],
-          highlightIndex: 0
+          items: ["A", "B", "C"],
+          op: "enqueue",
+          highlightIndex: 2,
+          frontIndex: 0
         },
-        meta: { step: 4, label: "Processing front element 'task1'" }
+        meta: { step: 4, label: "enqueue C" }
       },
       {
         state: {
-          items: ["task2", "task3"],
-          highlightIndex: 0
+          items: ["A", "B", "C"],
+          op: "dequeue",
+          highlightIndex: 0,
+          frontIndex: 0
         },
-        meta: { step: 5, label: "Dequeuing 'task1'" }
+        meta: { step: 5, label: "dequeue (front=0)" }
       },
       {
         state: {
-          items: ["task2", "task3"],
-          highlightIndex: 0
+          items: ["B", "C"],
+          op: "dequeue",
+          highlightIndex: null,
+          frontIndex: 0
         },
-        meta: { step: 6, label: "Processing front element 'task2'" }
+        meta: { step: 6, label: "removed front (A)" }
       }
     ],
     hash: [
@@ -591,6 +605,56 @@ const createAlgorithmDescriptor = (key: AlgorithmKey): AlgorithmDescriptor => {
         const avlFrames = runAVLCommands(commands)
         // Convert AVLState frames to Record<string, unknown> frames
         return avlFrames.map(frame => ({
+          state: frame.state as Record<string, unknown>,
+          meta: frame.meta
+        }))
+      },
+      parseCommand
+    }
+  }
+  
+  // Special handling for queue algorithm
+  if (key === 'queue') {
+    return {
+      key,
+      title: "Queue",
+      description: preset.description,
+      complexities: {
+        "Enqueue": "O(1)",
+        "Dequeue": "O(1)",
+        "Peek": "O(1)"
+      },
+      createMockFrames: () => createMockFrames(key),
+      createFramesFromInput: (input: string) => {
+        const commands = parseQueueInput(input)
+        const queueFrames = runQueueCommands([], commands)
+        // Convert QueueState frames to Record<string, unknown> frames
+        return queueFrames.map(frame => ({
+          state: frame.state as Record<string, unknown>,
+          meta: frame.meta
+        }))
+      },
+      parseCommand
+    }
+  }
+  
+  // Special handling for stack algorithm
+  if (key === 'stack') {
+    return {
+      key,
+      title: "Stack",
+      description: preset.description,
+      complexities: {
+        "Push": "O(1)",
+        "Pop": "O(1)",
+        "Peek": "O(1)"
+      },
+      createMockFrames: () => createMockFrames(key),
+      createFramesFromInput: (input: string) => {
+        const commands = parseStackInput(input)
+        const stackFrames = runStackCommands([], commands)
+        // Convert StackState frames to Record<string, unknown> frames
+        return stackFrames.map(frame => ({
           state: frame.state as Record<string, unknown>,
           meta: frame.meta
         }))

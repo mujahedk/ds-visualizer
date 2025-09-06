@@ -128,6 +128,10 @@ const Playground: React.FC = () => {
           errorMessage = `BST preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
         } else if (algorithmKey === 'avl') {
           errorMessage = `AVL preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
+        } else if (algorithmKey === 'queue') {
+          errorMessage = `Queue preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
+        } else if (algorithmKey === 'stack') {
+          errorMessage = `Stack preset error: ${error instanceof Error ? error.message : 'Invalid format'}. Check preset commands.`
         }
         
         setToast({ 
@@ -188,6 +192,10 @@ const Playground: React.FC = () => {
           errorMessage = `BST command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: insert 8; delete 3`
         } else if (algorithmKey === 'avl') {
           errorMessage = `AVL command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: insert 30; delete 20`
+        } else if (algorithmKey === 'queue') {
+          errorMessage = `Queue command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: enqueue A; dequeue 2`
+        } else if (algorithmKey === 'stack') {
+          errorMessage = `Stack command error: ${error instanceof Error ? error.message : 'Invalid format'}. Try: push 5; pop 2`
         }
         
         setToast({
@@ -242,6 +250,14 @@ const Playground: React.FC = () => {
       return 'Formats: insert 42 or insert key=42; delete 17 or delete key=17; Separate with ; or newlines'
     }
     
+    if (algorithmKey === 'queue') {
+      return 'Formats: enqueue 5 or enqueue A; dequeue or dequeue 2; Multiple commands separated by ; or newlines'
+    }
+    
+    if (algorithmKey === 'stack') {
+      return 'Formats: push 5 or push A; pop or pop 2; Multiple commands separated by ; or newlines'
+    }
+    
     return `Examples: ${algorithmPresets[algorithmKey].sampleInputs.slice(0, 3).join(', ')}`
   }
 
@@ -260,6 +276,14 @@ const Playground: React.FC = () => {
     
     if (algorithmKey === 'avl') {
       return 'insert 30; insert 20; insert 10\ninsert 15; delete 20'
+    }
+    
+    if (algorithmKey === 'queue') {
+      return 'enqueue A; enqueue B; enqueue C\ndequeue 2; enqueue D'
+    }
+    
+    if (algorithmKey === 'stack') {
+      return 'push 1; push 2; push 3\npop 1; push 4; pop 2'
     }
     
     return 'insert 5, delete 3, search 10'
@@ -403,6 +427,42 @@ const Playground: React.FC = () => {
                     <div><strong>Reset:</strong> <code className="bg-gray-800 px-1 rounded">reset</code></div>
                     <div><strong>Multiple:</strong> Separate with <code className="bg-gray-800 px-1 rounded">;</code> or newlines</div>
                     <div><strong>Example:</strong> <code className="bg-gray-800 px-1 rounded">insert 8; insert 3; delete 3</code></div>
+                  </div>
+                </details>
+              </div>
+            )}
+            
+            {/* Queue-specific detailed help */}
+            {algorithmKey === 'queue' && (
+              <div className="mt-3 p-2 bg-gray-700 rounded border border-gray-600">
+                <details className="text-gray-300 text-xs">
+                  <summary className="cursor-pointer hover:text-white font-medium">
+                    📖 Queue Command Reference
+                  </summary>
+                  <div className="mt-2 space-y-1">
+                    <div><strong>Enqueue:</strong> <code className="bg-gray-800 px-1 rounded">enqueue 5</code> or <code className="bg-gray-800 px-1 rounded">enqueue A</code> or <code className="bg-gray-800 px-1 rounded">enqueue "A"</code></div>
+                    <div><strong>Dequeue:</strong> <code className="bg-gray-800 px-1 rounded">dequeue</code> (defaults to 1) or <code className="bg-gray-800 px-1 rounded">dequeue 2</code></div>
+                    <div><strong>Reset:</strong> <code className="bg-gray-800 px-1 rounded">reset</code></div>
+                    <div><strong>Multiple:</strong> Separate with <code className="bg-gray-800 px-1 rounded">;</code> or newlines</div>
+                    <div><strong>Example:</strong> <code className="bg-gray-800 px-1 rounded">enqueue A; enqueue B; dequeue 1; enqueue C</code></div>
+                  </div>
+                </details>
+              </div>
+            )}
+            
+            {/* Stack-specific detailed help */}
+            {algorithmKey === 'stack' && (
+              <div className="mt-3 p-2 bg-gray-700 rounded border border-gray-600">
+                <details className="text-gray-300 text-xs">
+                  <summary className="cursor-pointer hover:text-white font-medium">
+                    📖 Stack Command Reference
+                  </summary>
+                  <div className="mt-2 space-y-1">
+                    <div><strong>Push:</strong> <code className="bg-gray-800 px-1 rounded">push 5</code> or <code className="bg-gray-800 px-1 rounded">push A</code> or <code className="bg-gray-800 px-1 rounded">push "A"</code></div>
+                    <div><strong>Pop:</strong> <code className="bg-gray-800 px-1 rounded">pop</code> (defaults to 1) or <code className="bg-gray-800 px-1 rounded">pop 2</code></div>
+                    <div><strong>Reset:</strong> <code className="bg-gray-800 px-1 rounded">reset</code></div>
+                    <div><strong>Multiple:</strong> Separate with <code className="bg-gray-800 px-1 rounded">;</code> or newlines</div>
+                    <div><strong>Example:</strong> <code className="bg-gray-800 px-1 rounded">push 1; push 2; pop 1; push 3</code></div>
                   </div>
                 </details>
               </div>
